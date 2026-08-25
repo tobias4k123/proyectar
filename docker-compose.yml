@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # 1. SERVICIO DE BASE DE DATOS (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: proyectar_db
+    restart: always
+    environment:
+      POSTGRES_USER: proyectar_user
+      POSTGRES_PASSWORD: proyectar_password
+      POSTGRES_DB: proyectar_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persistencia de datos
+
+  # 2. SERVICIO DE BACKEND (FastAPI)
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: proyectar_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      # URL de conexión para SQLAlchemy apuntando al contenedor 'db'
+      DATABASE_URL: postgresql://proyectar_user:proyectar_password@db:5432/proyectar_db
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app # Sincroniza el código en tiempo real
+
+  # 3. SERVICIO DE FRONTEND (React + Vite)
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: proyectar_frontend
+    restart: always
+    ports:
+      - "3000:5173" # Mapea Vite al puerto 3000
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app 
+      - /app/node_modules 
+
+volumes:
+  postgres_data:
