@@ -7,7 +7,7 @@ from sqlalchemy import pool, create_engine
 from alembic import context
 
 from app.database import Base
-from app.models import Usuario, Materia, HistorialAcademico  # noqa
+from app.models import Usuario, Materia, Correlatividad, HistorialAcademico  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
