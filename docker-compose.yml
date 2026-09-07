@@ -27,6 +27,11 @@ services:
     environment:
       # URL de conexión para SQLAlchemy apuntando al contenedor 'db'
       DATABASE_URL: postgresql://proyectar_user:proyectar_password@db:5432/proyectar_db
+      # Clave para firmar los JWT. Esto es un valor de desarrollo: en un
+      # entorno real NO va hardcodeado en el compose, va en un .env que no
+      # se commitea.
+      SECRET_KEY: dev-secret-cambiar-en-produccion
+      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
     depends_on:
       - db
     volumes:

@@ -1,0 +1,24 @@
+from pydantic import BaseModel, EmailStr
+
+from .models import RolEnum
+
+
+class UsuarioCreate(BaseModel):
+    nombre: str
+    email: EmailStr
+    password: str
+
+
+class UsuarioOut(BaseModel):
+    id: int
+    nombre: str
+    email: EmailStr
+    rol: RolEnum
+
+    class Config:
+        from_attributes = True
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
