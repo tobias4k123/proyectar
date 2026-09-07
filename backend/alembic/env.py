@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -58,9 +59,15 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = create_engine(
-        "postgresql+psycopg2://proyectar_user:proyectar_password@localhost:5433/proyectar_db"
+    # Usa la misma DATABASE_URL que el resto de la app cuando esta corre
+    # dentro de un contenedor (docker compose exec backend alembic ...),
+    # y cae al puerto expuesto en el host (5433) para correrlo desde
+    # afuera de Docker.
+    database_url = os.environ.get(
+        "DATABASE_URL",
+        "postgresql+psycopg2://proyectar_user:proyectar_password@localhost:5433/proyectar_db",
     )
+    connectable = create_engine(database_url)
 
     with connectable.connect() as connection:
         context.configure(
