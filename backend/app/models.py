@@ -19,6 +19,13 @@ class RequisitoEnum(enum.Enum):
     APROBADA = "aprobada"
 
 
+class EstadoHistorial(enum.Enum):
+    CURSANDO = "cursando"
+    REGULAR = "regular"  # curso aprobado, pendiente de rendir el final
+    APROBADA = "aprobada"
+    LIBRE = "libre"  # perdio la regularidad, tiene que recursar
+
+
 class Usuario(Base):
     __tablename__ = "usuarios"
 
@@ -79,7 +86,7 @@ class HistorialAcademico(Base):
     id = Column(Integer, primary_key=True, index=True)
     alumno_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     materia_id = Column(Integer, ForeignKey("materias.id"), nullable=False)
-    estado = Column(String, nullable=False)
+    estado = Column(Enum(EstadoHistorial), nullable=False)
     nota = Column(Integer, nullable=True)
 
     alumno = relationship("Usuario", back_populates="historial")

@@ -22,3 +22,24 @@ class UsuarioOut(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class MateriaEstado(BaseModel):
+    materia_id: int
+    codigo: str
+    nombre: str
+    anio_carrera: int
+    estado: str
+    puede_rendir_final: bool | None = None
+
+
+class AristaGrafo(BaseModel):
+    origen_id: int
+    destino_id: int
+    tipo: str
+    requiere: str
+
+
+class GrafoResponse(BaseModel):
+    nodos: list[MateriaEstado]
+    aristas: list[AristaGrafo]
