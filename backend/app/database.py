@@ -1,9 +1,16 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# URL de conexión a PostgreSQL (usa los datos del docker-compose)
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:postgres@db:5432/proyectar_db"
+# URL de conexión a PostgreSQL: se toma de la variable de entorno DATABASE_URL
+# que define docker-compose.yml para el servicio "backend". El valor de acá
+# abajo es solo un fallback para poder correr el backend fuera de Docker.
+SQLALCHEMY_DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql+psycopg2://proyectar_user:proyectar_password@localhost:5433/proyectar_db",
+)
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

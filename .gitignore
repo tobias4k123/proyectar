@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node / frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Variables de entorno / secretos
+.env
+.env.*
+
+# Editores / SO
+.vscode/
+.idea/
+.DS_Store
