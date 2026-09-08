@@ -1,6 +1,6 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
-from .models import RolEnum
+from .models import EstadoHistorial, RolEnum
 
 
 class UsuarioCreate(BaseModel):
@@ -43,3 +43,26 @@ class AristaGrafo(BaseModel):
 class GrafoResponse(BaseModel):
     nodos: list[MateriaEstado]
     aristas: list[AristaGrafo]
+
+class HistorialUpdate(BaseModel):
+    materia_id: int
+    estado: EstadoHistorial
+    nota: int | None = Field(default=None, ge=1, le=10)
+
+
+class HistorialOut(BaseModel):
+    materia_id: int
+    estado: EstadoHistorial
+    nota: int | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class DashboardResponse(BaseModel):
+    total_materias: int
+    aprobadas: int
+    cursando: int
+    regulares: int
+    porcentaje_avance: float
+    promedio: float | None = None
