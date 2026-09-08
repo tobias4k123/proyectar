@@ -76,11 +76,18 @@ def calcular_estados(db: Session, alumno_id: int) -> list[dict]:
         puede_rendir_final = None
         if estado_visual == "regular":
             requisitos_final = [
-                origen
+                (origen, attrs)
                 for origen, _, attrs in G.in_edges(materia_id, data=True)
                 if attrs["tipo"] == models.TipoCorrelatividad.FINAL
             ]
-            puede_rendir_final = all(origen in aprobadas_ids for origen in requisitos_final)
+            # Igual que con "cursar": cada correlatividad puede exigir la
+            # materia aprobada o solo cursada (regular), no siempre lo mismo.
+            puede_rendir_final = all(
+                (origen in aprobadas_ids)
+                if attrs["requiere"] == models.RequisitoEnum.APROBADA
+                else (origen in cursada_satisfecha_ids)
+                for origen, attrs in requisitos_final
+            )
 
         resultado.append(
             {
