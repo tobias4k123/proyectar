@@ -31,6 +31,7 @@ class MateriaEstado(BaseModel):
     anio_carrera: int
     estado: str
     puede_rendir_final: bool | None = None
+    puede_promocionar: bool | None = None
     simulado: bool = False
 
 

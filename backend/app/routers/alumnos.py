@@ -8,11 +8,13 @@ from .auth import get_current_user
 router = APIRouter(prefix="/alumnos", tags=["Alumnos"])
 
 # Transiciones válidas: a qué estado se puede llegar desde cuál (None =
-# la materia todavía no tiene registro de historial).
+# la materia todavía no tiene registro de historial). APROBADA admite
+# venir tanto de REGULAR (rindió el final) como de CURSANDO directo
+# (promoción -- en IFES todas las materias son promocionables).
 _ORIGENES_VALIDOS = {
     models.EstadoHistorial.CURSANDO: {None, models.EstadoHistorial.LIBRE, models.EstadoHistorial.CURSANDO},
     models.EstadoHistorial.REGULAR: {models.EstadoHistorial.CURSANDO},
-    models.EstadoHistorial.APROBADA: {models.EstadoHistorial.REGULAR},
+    models.EstadoHistorial.APROBADA: {models.EstadoHistorial.CURSANDO, models.EstadoHistorial.REGULAR},
     models.EstadoHistorial.LIBRE: {models.EstadoHistorial.CURSANDO, models.EstadoHistorial.REGULAR},
 }
 
@@ -63,11 +65,13 @@ def actualizar_historial(
     elif nuevo_estado == models.EstadoHistorial.APROBADA:
         if datos.nota is None:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Hace falta indicar la nota para aprobar")
-        estados = {n["materia_id"]: n for n in grafo.calcular_estados(db, current_user.id)}
-        if not estados[materia.id]["puede_rendir_final"]:
+        # Aplica igual si viene de "regular" (rindió el final) o de
+        # "cursando" (promoción directa): en los dos casos hace falta
+        # cumplir las correlatividades tipo FINAL.
+        if not grafo.puede_aprobar(db, current_user.id, materia.id):
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                "Todavía no cumplís las correlatividades para rendir el final",
+                "Todavía no cumplís las correlatividades para aprobar esta materia",
             )
 
     if registro:
@@ -85,6 +89,32 @@ def actualizar_historial(
     db.commit()
     db.refresh(registro)
     return registro
+
+
+@router.delete("/me/historial/{materia_id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_historial(
+    materia_id: int,
+    current_user: models.Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Deshace la carga de una materia (vuelve a "sin cursar"), sin
+    importar en que estado esté -- incluida una ya aprobada. ProyectAR
+    no reemplaza al SIU-Guaraní: es la herramienta de seguimiento del
+    propio alumno, no el registro oficial, así que si se equivocó al
+    cargar algo la corrección es borrar y volver a cargarlo bien.
+    """
+    registro = (
+        db.query(models.HistorialAcademico)
+        .filter_by(alumno_id=current_user.id, materia_id=materia_id)
+        .first()
+    )
+    if not registro:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "No tenés un registro cargado para esa materia"
+        )
+    db.delete(registro)
+    db.commit()
 
 
 @router.get("/me/dashboard", response_model=schemas.DashboardResponse)

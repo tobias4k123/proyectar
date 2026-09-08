@@ -51,6 +51,40 @@ def _contexto_historial(db: Session, alumno_id: int, simulacion_aprobadas: set[i
     return historial_por_materia, aprobadas_ids, cursada_satisfecha_ids, simuladas_ids
 
 
+def _cumple_requisitos(G, materia_id, tipo, aprobadas_ids, cursada_satisfecha_ids) -> bool:
+    """
+    Chequea las correlatividades de un `tipo` (CURSAR o FINAL) que
+    apuntan a `materia_id`: cada una puede exigir la correlativa
+    aprobada o solo cursada (regular/aprobada), no siempre lo mismo.
+    """
+    requisitos = [
+        (origen, attrs)
+        for origen, _, attrs in G.in_edges(materia_id, data=True)
+        if attrs["tipo"] == tipo
+    ]
+    return all(
+        (origen in aprobadas_ids)
+        if attrs["requiere"] == models.RequisitoEnum.APROBADA
+        else (origen in cursada_satisfecha_ids)
+        for origen, attrs in requisitos
+    )
+
+
+def puede_aprobar(db: Session, alumno_id: int, materia_id: int) -> bool:
+    """
+    Si el alumno ya cumple las correlatividades tipo FINAL para terminar
+    de aprobar esta materia -- aplica tanto si va a rendir el final
+    (viniendo de "regular") como si promociona directo (viniendo de
+    "cursando"): en los dos casos la materia queda aprobada, y las
+    correlatividades tipo FINAL representan lo mismo en ambos casos.
+    """
+    G = construir_grafo(db)
+    _, aprobadas_ids, cursada_satisfecha_ids, _ = _contexto_historial(db, alumno_id)
+    return _cumple_requisitos(
+        G, materia_id, models.TipoCorrelatividad.FINAL, aprobadas_ids, cursada_satisfecha_ids
+    )
+
+
 def calcular_estados(
     db: Session, alumno_id: int, simulacion_aprobadas: set[int] | None = None
 ) -> list[dict]:
@@ -84,33 +118,26 @@ def calcular_estados(
         else:
             # sin historial, o "libre": se evalua si esta disponible o
             # bloqueada segun las correlatividades tipo CURSAR
-            requisitos_cursar = [
-                (origen, attrs)
-                for origen, _, attrs in G.in_edges(materia_id, data=True)
-                if attrs["tipo"] == models.TipoCorrelatividad.CURSAR
-            ]
-            cumple_todos = all(
-                (origen in aprobadas_ids)
-                if attrs["requiere"] == models.RequisitoEnum.APROBADA
-                else (origen in cursada_satisfecha_ids)
-                for origen, attrs in requisitos_cursar
+            cumple_todos = _cumple_requisitos(
+                G, materia_id, models.TipoCorrelatividad.CURSAR, aprobadas_ids, cursada_satisfecha_ids
             )
             estado_visual = "disponible" if cumple_todos else "bloqueada"
 
+        # puede_rendir_final: para materias "regular", que ya pueden ir a
+        # rendir el final. puede_promocionar: para materias "cursando",
+        # que ya podrian promocionar directo (todas las materias de IFES
+        # son promocionables). Las dos preguntan lo mismo -- si se
+        # cumplen las correlatividades tipo FINAL -- solo que aplican a
+        # un estado de origen distinto.
         puede_rendir_final = None
+        puede_promocionar = None
         if estado_visual == "regular":
-            requisitos_final = [
-                (origen, attrs)
-                for origen, _, attrs in G.in_edges(materia_id, data=True)
-                if attrs["tipo"] == models.TipoCorrelatividad.FINAL
-            ]
-            # Igual que con "cursar": cada correlatividad puede exigir la
-            # materia aprobada o solo cursada (regular), no siempre lo mismo.
-            puede_rendir_final = all(
-                (origen in aprobadas_ids)
-                if attrs["requiere"] == models.RequisitoEnum.APROBADA
-                else (origen in cursada_satisfecha_ids)
-                for origen, attrs in requisitos_final
+            puede_rendir_final = _cumple_requisitos(
+                G, materia_id, models.TipoCorrelatividad.FINAL, aprobadas_ids, cursada_satisfecha_ids
+            )
+        elif estado_visual == "cursando":
+            puede_promocionar = _cumple_requisitos(
+                G, materia_id, models.TipoCorrelatividad.FINAL, aprobadas_ids, cursada_satisfecha_ids
             )
 
         resultado.append(
@@ -121,6 +148,7 @@ def calcular_estados(
                 "anio_carrera": datos["anio_carrera"],
                 "estado": estado_visual,
                 "puede_rendir_final": puede_rendir_final,
+                "puede_promocionar": puede_promocionar,
                 "simulado": simulado,
             }
         )
