@@ -31,6 +31,7 @@ class MateriaEstado(BaseModel):
     anio_carrera: int
     estado: str
     puede_rendir_final: bool | None = None
+    simulado: bool = False
 
 
 class AristaGrafo(BaseModel):
@@ -43,6 +44,17 @@ class AristaGrafo(BaseModel):
 class GrafoResponse(BaseModel):
     nodos: list[MateriaEstado]
     aristas: list[AristaGrafo]
+
+
+class RutaCriticaResponse(BaseModel):
+    longitud: int
+    materias: list[MateriaEstado]
+
+
+class SimulacionResponse(BaseModel):
+    nodos: list[MateriaEstado]
+    aristas: list[AristaGrafo]
+    ruta_critica: list[MateriaEstado]
 
 class HistorialUpdate(BaseModel):
     materia_id: int
