@@ -59,6 +59,13 @@ export async function obtenerGrafo(token) {
   return manejarRespuesta(response)
 }
 
+export async function obtenerDashboard(token) {
+  const response = await fetch(`${API_URL}/alumnos/me/dashboard`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return manejarRespuesta(response)
+}
+
 // Carga o corrige el estado de una materia en el historial del alumno.
 // `nota` solo hace falta cuando `estado` es "aprobada" (1 a 10).
 export async function actualizarHistorial(token, { materia_id, estado, nota }) {
