@@ -30,6 +30,7 @@ class MateriaEstado(BaseModel):
     nombre: str
     anio_carrera: int
     estado: str
+    nota: int | None = None
     puede_rendir_final: bool | None = None
     puede_promocionar: bool | None = None
     simulado: bool = False

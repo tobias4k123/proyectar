@@ -1,20 +1,12 @@
-import { CheckCircle2, BadgeCheck, Clock, Circle, Lock } from 'lucide-react'
-
-const ESTADOS = [
-  { label: 'Aprobada', icon: CheckCircle2, className: 'text-[#0ca30c]' },
-  { label: 'Regular', icon: BadgeCheck, className: 'text-[#2a78d6]' },
-  { label: 'Cursando', icon: Clock, className: 'text-[#946200]' },
-  { label: 'Disponible', icon: Circle, className: 'text-slate-600' },
-  { label: 'Bloqueada', icon: Lock, className: 'text-slate-400' },
-]
+import { ESTADO_CONFIG } from '../../lib/estados'
 
 function EstadoLegend() {
   return (
     <div className="space-y-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-xs text-slate-600">
       <div className="flex flex-wrap items-center gap-4">
-        {ESTADOS.map(({ label, icon: Icon, className }) => (
+        {Object.values(ESTADO_CONFIG).map(({ label, icon: Icon, text }) => (
           <span key={label} className="flex items-center gap-1.5">
-            <Icon size={14} className={className} aria-hidden="true" />
+            <Icon size={14} className={text} aria-hidden="true" />
             {label}
           </span>
         ))}

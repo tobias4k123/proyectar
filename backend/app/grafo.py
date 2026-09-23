@@ -147,6 +147,7 @@ def calcular_estados(
                 "nombre": datos["nombre"],
                 "anio_carrera": datos["anio_carrera"],
                 "estado": estado_visual,
+                "nota": h.nota if (h and not simulado) else None,
                 "puede_rendir_final": puede_rendir_final,
                 "puede_promocionar": puede_promocionar,
                 "simulado": simulado,
