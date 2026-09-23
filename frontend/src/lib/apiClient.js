@@ -15,6 +15,9 @@ async function manejarRespuesta(response) {
     }
     throw new Error(detalle)
   }
+  // DELETE /alumnos/me/historial/{id} responde 204 sin cuerpo -- no hay
+  // nada que parsear como JSON.
+  if (response.status === 204) return null
   return response.json()
 }
 
@@ -51,6 +54,30 @@ export async function obtenerUsuarioActual(token) {
 
 export async function obtenerGrafo(token) {
   const response = await fetch(`${API_URL}/grafo`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return manejarRespuesta(response)
+}
+
+// Carga o corrige el estado de una materia en el historial del alumno.
+// `nota` solo hace falta cuando `estado` es "aprobada" (1 a 10).
+export async function actualizarHistorial(token, { materia_id, estado, nota }) {
+  const response = await fetch(`${API_URL}/alumnos/me/historial`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ materia_id, estado, nota }),
+  })
+  return manejarRespuesta(response)
+}
+
+// Deshace la carga de una materia (vuelve a "sin cursar"), sin importar
+// en qué estado esté -- es la forma de corregir un error de carga.
+export async function eliminarHistorial(token, materiaId) {
+  const response = await fetch(`${API_URL}/alumnos/me/historial/${materiaId}`, {
+    method: 'DELETE',
     headers: { Authorization: `Bearer ${token}` },
   })
   return manejarRespuesta(response)
