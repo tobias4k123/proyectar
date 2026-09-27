@@ -5,6 +5,7 @@ const navItems = [
   { to: '/', label: 'Dashboard', end: true },
   { to: '/plan-de-estudios', label: 'Plan de Estudios' },
   { to: '/historial', label: 'Historial Académico' },
+  { to: '/ruta-critica', label: 'Ruta Crítica' },
 ]
 
 function MainLayout() {

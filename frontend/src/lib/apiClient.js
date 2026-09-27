@@ -59,6 +59,21 @@ export async function obtenerGrafo(token) {
   return manejarRespuesta(response)
 }
 
+// GET /grafo/simulacion: mismo shape que /grafo (nodos + aristas) pero
+// además trae `ruta_critica` (la cadena más larga de materias pendientes)
+// y, si se pasan `materiasAprobadas`, calcula todo "como si" esas materias
+// ya estuvieran aprobadas -- sin tocar el historial real del alumno.
+export async function simularGrafo(token, materiasAprobadas = []) {
+  const params = new URLSearchParams()
+  for (const materiaId of materiasAprobadas) {
+    params.append('materias_aprobadas', materiaId)
+  }
+  const response = await fetch(`${API_URL}/grafo/simulacion?${params.toString()}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return manejarRespuesta(response)
+}
+
 export async function obtenerDashboard(token) {
   const response = await fetch(`${API_URL}/alumnos/me/dashboard`, {
     headers: { Authorization: `Bearer ${token}` },
