@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ReactFlow, Background, Controls, MiniMap } from '@xyflow/react'
+import { ReactFlow, Background, Controls } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import * as api from '../lib/apiClient'
 import { useAuthStore } from '../store/useAuthStore'
@@ -59,7 +59,6 @@ function PlanDeEstudios() {
             >
               <Background gap={24} color="#e1e0d9" />
               <Controls showInteractive={false} />
-              <MiniMap pannable zoomable className="!bg-white" />
             </ReactFlow>
           </div>
         </>

@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Dashboard from './pages/Dashboard'
 import PlanDeEstudios from './pages/PlanDeEstudios'
 import Historial from './pages/Historial'
+import RutaCritica from './pages/RutaCritica'
 import Login from './pages/Login'
 import Register from './pages/Register'
 
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/plan-de-estudios" element={<PlanDeEstudios />} />
           <Route path="/historial" element={<Historial />} />
+          <Route path="/ruta-critica" element={<RutaCritica />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Register />} />
