@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ReactFlow, Background, Controls } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -6,6 +6,7 @@ import { Route, FlaskConical, RotateCcw } from 'lucide-react'
 import * as api from '../lib/apiClient'
 import { useAuthStore } from '../store/useAuthStore'
 import { construirGrafo } from '../lib/layoutMaterias'
+import { aplicarFoco } from '../lib/aplicarFoco'
 import { configDeEstado } from '../lib/estados'
 import MateriaNode from '../components/graph/MateriaNode'
 import EstadoLegend from '../components/graph/EstadoLegend'
@@ -17,6 +18,9 @@ function RutaCritica() {
   // Materias que el alumno eligió simular como aprobadas, sin tocar su
   // historial real. Vacío = ruta crítica sobre el estado real actual.
   const [seleccionadas, setSeleccionadas] = useState([])
+  // Materia clickeada en el gráfico para "modo foco" (ver aplicarFoco) --
+  // independiente de la simulación, es solo para resaltar correlativas.
+  const [seleccionId, setSeleccionId] = useState(null)
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['simulacion', seleccionadas],
@@ -29,13 +33,24 @@ function RutaCritica() {
     [data],
   )
 
-  const { nodes, edges } = useMemo(
+  const { nodes: nodesBase, edges: edgesBase } = useMemo(
     () =>
       data
         ? construirGrafo({ nodos: data.nodos, aristas: data.aristas, rutaCriticaIds })
         : { nodes: [], edges: [] },
     [data, rutaCriticaIds],
   )
+
+  const { nodes, edges } = useMemo(
+    () => aplicarFoco(nodesBase, edgesBase, seleccionId),
+    [nodesBase, edgesBase, seleccionId],
+  )
+
+  const alClickearMateria = useCallback((_event, nodo) => {
+    setSeleccionId((actual) => (actual === nodo.id ? null : nodo.id))
+  }, [])
+
+  const alClickearFondo = useCallback(() => setSeleccionId(null), [])
 
   const enSimulacion = seleccionadas.length > 0
 
@@ -54,7 +69,8 @@ function RutaCritica() {
             La ruta crítica es la cadena más larga de materias que todavía te
             faltan: si se atrasa alguna de esas, se atrasa toda la carrera.
             Marcá materias como "aprobadas de mentira" para simular escenarios
-            sin tocar tu historial real.
+            sin tocar tu historial real, o tocá una materia del gráfico para
+            resaltar sus correlativas.
           </p>
         </div>
         {enSimulacion && (
@@ -107,7 +123,15 @@ function RutaCritica() {
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
+                onNodeClick={alClickearMateria}
+                onPaneClick={alClickearFondo}
+                nodesDraggable={false}
                 fitView
+                minZoom={0.3}
+                maxZoom={1.5}
+                panOnScroll
+                zoomOnScroll={false}
+                zoomOnPinch
                 proOptions={{ hideAttribution: true }}
               >
                 <Background gap={24} color="#e1e0d9" />
