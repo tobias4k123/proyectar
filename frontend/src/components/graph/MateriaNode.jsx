@@ -10,6 +10,23 @@ function MateriaNode({ data }) {
     (data.estado === 'regular' && data.puedeRendirFinal) ||
     (data.estado === 'cursando' && data.puedePromocionar)
 
+  // En modo foco (ver PlanDeEstudios.jsx / RutaCritica.jsx): al clickear una
+  // materia, todo lo que no esté directamente relacionado se atenúa bastante
+  // para que resalten sus correlativas.
+  let opacidad = 'opacity-100'
+  if (data.atenuado) opacidad = 'opacity-20'
+  else if (bloqueada) opacidad = 'opacity-70'
+
+  // La materia seleccionada en modo foco se marca con un anillo oscuro; si
+  // además está en la ruta crítica, ya queda identificada por el badge y no
+  // compite por el mismo anillo (el foco es la selección más reciente del
+  // alumno, así que tiene prioridad visual).
+  const anillo = data.seleccionado
+    ? 'ring-2 ring-slate-900 ring-offset-2'
+    : data.enRutaCritica
+      ? 'ring-2 ring-[#ea6c1f] ring-offset-1'
+      : ''
+
   return (
     <div className="relative">
       {data.enRutaCritica && (
@@ -22,9 +39,7 @@ function MateriaNode({ data }) {
       )}
 
       <div
-        className={`w-48 rounded-lg border-2 px-3 py-2 shadow-sm ${config.border} ${config.bg} ${
-          bloqueada ? 'opacity-70' : 'opacity-100'
-        } ${data.enRutaCritica ? 'ring-2 ring-[#ea6c1f] ring-offset-1' : ''} ${
+        className={`w-48 cursor-pointer rounded-lg border-2 px-3 py-2 shadow-sm transition-opacity duration-200 ${config.border} ${config.bg} ${opacidad} ${anillo} ${
           data.simulado ? 'outline outline-2 outline-dashed outline-[#7c5fe0] outline-offset-2' : ''
         }`}
       >
