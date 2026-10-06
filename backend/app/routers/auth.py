@@ -34,6 +34,22 @@ def get_current_user(
     return usuario
 
 
+def get_current_admin(
+    current_user: models.Usuario = Depends(get_current_user),
+) -> models.Usuario:
+    """
+    Dependencia para los endpoints de /admin: exige que el usuario
+    autenticado tenga rol ADMIN, sin importar si el JWT es válido --
+    cumple el RNF-05 del informe (acceso cruzado entre roles -> 403).
+    """
+    if current_user.rol != models.RolEnum.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Se requiere rol de administrador",
+        )
+    return current_user
+
+
 @router.post(
     "/register", response_model=schemas.UsuarioOut, status_code=status.HTTP_201_CREATED
 )

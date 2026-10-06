@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import alumnos, auth, grafo
+from .routers import admin, alumnos, auth, grafo
 
 # Inicializamos la aplicación
 app = FastAPI(title="ProyectAR API", version="1.0")
@@ -23,6 +23,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(grafo.router)
 app.include_router(alumnos.router)
+app.include_router(admin.router)
 
 
 # Creamos nuestra primera ruta
