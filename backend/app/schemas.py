@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 
-from .models import EstadoHistorial, RolEnum
+from .models import EstadoHistorial, RolEnum, RequisitoEnum, TipoCorrelatividad
 
 
 class UsuarioCreate(BaseModel):
@@ -80,3 +80,46 @@ class DashboardResponse(BaseModel):
     regulares: int
     porcentaje_avance: float
     promedio: float | None = None
+
+
+# ---------- Admin: materias y correlatividades (CU-06 / CU-07) ----------
+
+
+class MateriaCreate(BaseModel):
+    codigo: str = Field(min_length=1)
+    nombre: str = Field(min_length=1)
+    anio_carrera: int = Field(ge=1)
+
+
+class MateriaUpdate(BaseModel):
+    codigo: str = Field(min_length=1)
+    nombre: str = Field(min_length=1)
+    anio_carrera: int = Field(ge=1)
+
+
+class MateriaOut(BaseModel):
+    id: int
+    codigo: str
+    nombre: str
+    anio_carrera: int
+
+    class Config:
+        from_attributes = True
+
+
+class CorrelatividadCreate(BaseModel):
+    materia_id: int
+    correlativa_id: int
+    tipo: TipoCorrelatividad
+    requiere: RequisitoEnum
+
+
+class CorrelatividadOut(BaseModel):
+    id: int
+    materia_id: int
+    correlativa_id: int
+    tipo: TipoCorrelatividad
+    requiere: RequisitoEnum
+
+    class Config:
+        from_attributes = True
