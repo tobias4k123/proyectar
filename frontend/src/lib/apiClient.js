@@ -104,3 +104,71 @@ export async function eliminarHistorial(token, materiaId) {
   })
   return manejarRespuesta(response)
 }
+
+// ---------- Administración (CU-06/CU-07, requiere rol admin) ----------
+
+export async function listarMateriasAdmin(token) {
+  const response = await fetch(`${API_URL}/admin/materias`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return manejarRespuesta(response)
+}
+
+export async function crearMateria(token, { codigo, nombre, anio_carrera }) {
+  const response = await fetch(`${API_URL}/admin/materias`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ codigo, nombre, anio_carrera }),
+  })
+  return manejarRespuesta(response)
+}
+
+export async function actualizarMateria(token, materiaId, { codigo, nombre, anio_carrera }) {
+  const response = await fetch(`${API_URL}/admin/materias/${materiaId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ codigo, nombre, anio_carrera }),
+  })
+  return manejarRespuesta(response)
+}
+
+export async function eliminarMateria(token, materiaId) {
+  const response = await fetch(`${API_URL}/admin/materias/${materiaId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return manejarRespuesta(response)
+}
+
+export async function listarCorrelatividadesAdmin(token) {
+  const response = await fetch(`${API_URL}/admin/correlatividades`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return manejarRespuesta(response)
+}
+
+export async function crearCorrelatividad(token, { materia_id, correlativa_id, tipo, requiere }) {
+  const response = await fetch(`${API_URL}/admin/correlatividades`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ materia_id, correlativa_id, tipo, requiere }),
+  })
+  return manejarRespuesta(response)
+}
+
+export async function eliminarCorrelatividad(token, correlatividadId) {
+  const response = await fetch(`${API_URL}/admin/correlatividades/${correlatividadId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return manejarRespuesta(response)
+}
