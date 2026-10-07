@@ -14,6 +14,11 @@ function MainLayout() {
   const logout = useAuthStore((state) => state.logout)
   const navigate = useNavigate()
 
+  // Los admins ven además el link a /admin -- el backend ya exige el rol
+  // en cada endpoint, esto es sólo para no mostrarle el link a un alumno.
+  const itemsDeNav =
+    usuario?.rol === 'admin' ? [...navItems, { to: '/admin', label: 'Administración' }] : navItems
+
   function handleLogout() {
     logout()
     navigate('/login')
@@ -27,7 +32,7 @@ function MainLayout() {
 
           {isAuthenticated && (
             <nav className="flex gap-1">
-              {navItems.map((item) => (
+              {itemsDeNav.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}

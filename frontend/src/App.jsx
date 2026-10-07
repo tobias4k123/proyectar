@@ -1,10 +1,12 @@
 import { Routes, Route } from 'react-router-dom'
 import MainLayout from './layouts/MainLayout'
 import ProtectedRoute from './components/ProtectedRoute'
+import AdminRoute from './components/AdminRoute'
 import Dashboard from './pages/Dashboard'
 import PlanDeEstudios from './pages/PlanDeEstudios'
 import Historial from './pages/Historial'
 import RutaCritica from './pages/RutaCritica'
+import Admin from './pages/Admin'
 import Login from './pages/Login'
 import Register from './pages/Register'
 
@@ -17,6 +19,9 @@ function App() {
           <Route path="/plan-de-estudios" element={<PlanDeEstudios />} />
           <Route path="/historial" element={<Historial />} />
           <Route path="/ruta-critica" element={<RutaCritica />} />
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<Admin />} />
+          </Route>
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Register />} />
