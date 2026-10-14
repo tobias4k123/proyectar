@@ -1,0 +1,13 @@
+# Normaliza el fin de línea a LF en el repositorio y en las copias de trabajo,
+# sin importar el sistema operativo. Evita que en Windows git marque como
+# "modificados" archivos que solo difieren en CRLF.
+* text eol=lf
+
+# Archivos binarios: que git no los toque.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
