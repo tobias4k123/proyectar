@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
+import { queryClient } from '../lib/queryClient'
 
 const navItems = [
   { to: '/', label: 'Dashboard', end: true },
@@ -21,6 +22,9 @@ function MainLayout() {
 
   function handleLogout() {
     logout()
+    // Se descartan los datos en caché: si entra otro usuario en el mismo
+    // navegador no tiene que ver, ni por un instante, el avance del anterior.
+    queryClient.clear()
     navigate('/login')
   }
 

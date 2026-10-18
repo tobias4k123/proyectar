@@ -2,10 +2,20 @@
 // URL configurable por variable de entorno: en Docker la inyecta
 // docker-compose (VITE_API_URL=http://localhost:8000); corriendo el
 // frontend suelto con `npm run dev`, se toma de .env / .env.local.
+import { useAuthStore } from '../store/useAuthStore'
+import { queryClient } from './queryClient'
+
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
 async function manejarRespuesta(response) {
   if (!response.ok) {
+    // 401 con una sesión activa = el token venció (dura 60 minutos). Se cierra
+    // la sesión y ProtectedRoute manda al login. El 401 de un login fallido
+    // no entra acá porque todavía no hay sesión iniciada.
+    if (response.status === 401 && useAuthStore.getState().isAuthenticated) {
+      useAuthStore.getState().logout()
+      queryClient.clear()
+    }
     let detalle = 'Ocurrió un error inesperado. Intentá de nuevo.'
     try {
       const cuerpo = await response.json()
