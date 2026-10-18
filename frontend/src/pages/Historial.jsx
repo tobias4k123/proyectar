@@ -28,9 +28,11 @@ function Historial() {
   })
 
   function alExito() {
-    // Mismo queryKey que usa PlanDeEstudios: un cambio acá se refleja
-    // también en el gráfico sin recargar la página.
+    // Cualquier cambio en el historial deja viejos el plan, el dashboard y la
+    // ruta crítica: se invalidan para que se vuelvan a pedir solos.
     queryClient.invalidateQueries({ queryKey: ['grafo'] })
+    queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    queryClient.invalidateQueries({ queryKey: ['simulacion'] })
     setAprobando(null)
     setNota('')
     setError(null)
