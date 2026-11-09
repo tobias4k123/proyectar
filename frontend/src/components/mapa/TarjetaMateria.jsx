@@ -1,11 +1,20 @@
-import { Lock, Sparkles } from 'lucide-react'
+import { Lock, Route, Sparkles } from 'lucide-react'
 import { configDeEstado } from '../../lib/estados'
 import { ALTO_TARJETA, ANCHO_TARJETA } from '../../lib/mapaMaterias'
 
 // Una materia del mapa. Es un <button> y no un <div> a propósito: así se
 // puede recorrer el mapa con el teclado y cada materia se anuncia como lo
 // que es, algo en lo que se puede entrar.
-function TarjetaMateria({ materia, x, y, seleccionada, atenuada, requiereTodo, onSeleccionar }) {
+function TarjetaMateria({
+  materia,
+  x,
+  y,
+  seleccionada,
+  atenuada,
+  requiereTodo,
+  enRutaCritica,
+  onSeleccionar,
+}) {
   const config = configDeEstado(materia.estado)
   const Icon = config.icon
   const puedeAvanzar =
@@ -20,12 +29,28 @@ function TarjetaMateria({ materia, x, y, seleccionada, atenuada, requiereTodo, o
       className={`absolute flex flex-col justify-center rounded-lg border-2 px-2.5 text-left shadow-sm transition-all ${
         config.border
       } ${config.bg} ${
-        seleccionada ? 'ring-2 ring-slate-900 ring-offset-2' : 'hover:shadow-md'
+        // El anillo de selección gana sobre el de ruta crítica: el foco es
+        // lo último que hizo el alumno, y la ruta crítica igual se sigue
+        // reconociendo por la insignia de la esquina.
+        seleccionada
+          ? 'ring-2 ring-slate-900 ring-offset-2'
+          : enRutaCritica
+            ? 'ring-2 ring-[#ea6c1f] ring-offset-1'
+            : 'hover:shadow-md'
       } ${atenuada ? 'opacity-30' : ''} ${
         materia.simulado ? 'outline outline-2 outline-dashed outline-[#7c5fe0] outline-offset-2' : ''
       }`}
       aria-pressed={seleccionada}
     >
+      {enRutaCritica && (
+        <span
+          title="En la ruta crítica"
+          className="absolute -left-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#ea6c1f] text-white shadow"
+        >
+          <Route size={11} aria-hidden="true" />
+        </span>
+      )}
+
       {puedeAvanzar && (
         <span
           title={materia.estado === 'regular' ? 'Podés rendir el final' : 'Podés promocionarla'}
