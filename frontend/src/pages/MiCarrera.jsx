@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { FlaskConical, LayoutGrid, List, Route, RotateCcw } from 'lucide-react'
 import * as api from '../lib/apiClient'
 import { useAuthStore } from '../store/useAuthStore'
 import { ESTADO_CONFIG } from '../lib/estados'
-import { indexarGrafo } from '../lib/requisitos'
+import { descendientesDe, indexarGrafo } from '../lib/requisitos'
 import MapaMaterias from '../components/mapa/MapaMaterias'
 import ListaMaterias from '../components/mapa/ListaMaterias'
 import PanelMateria from '../components/mapa/PanelMateria'
@@ -30,6 +30,11 @@ function MiCarrera() {
     queryKey: ['simulacion', simuladas],
     queryFn: () => api.simularGrafo(token, simuladas),
     enabled: Boolean(token),
+    // Al marcar una materia en el simulador cambia la clave de la consulta.
+    // Sin esto el mapa desaparecería mientras llega la respuesta, la
+    // pantalla se vaciaría y el navegador saltaría al tope: se queda con
+    // los datos anteriores hasta que estén los nuevos.
+    placeholderData: keepPreviousData,
   })
 
   const indice = useMemo(() => (data ? indexarGrafo(data) : null), [data])
@@ -49,20 +54,32 @@ function MiCarrera() {
   }, [])
 
   // En modo simulación el clic cambia de significado: marca o desmarca la
-  // materia como aprobada "de mentira" en vez de abrir su panel. Las que ya
-  // están aprobadas de verdad no se tocan.
+  // materia como aprobada "de mentira" en vez de abrir su panel.
   function alTocarMateria(materiaId) {
     if (!modoSimulacion) {
       setSeleccionId((actual) => (actual === materiaId ? null : materiaId))
       return
     }
+
     const materia = indice?.porId.get(materiaId)
-    if (materia?.estado === 'aprobada' && !materia.simulado) return
-    setSimuladas((previas) =>
-      previas.includes(materiaId)
-        ? previas.filter((id) => id !== materiaId)
-        : [...previas, materiaId],
-    )
+    if (!materia) return
+
+    if (materia.simulado) {
+      // Al dejar de dar por aprobada una materia también se caen las que
+      // se habían habilitado gracias a ella: si no, quedarían aprobadas
+      // sin cumplir sus correlatividades, que es justo lo que el simulador
+      // tiene que mostrar bien.
+      const seCaen = descendientesDe(indice, materiaId)
+      setSimuladas((previas) =>
+        previas.filter((id) => id !== materiaId && !seCaen.has(id)),
+      )
+      return
+    }
+
+    // Solo se puede simular lo que hoy se podría cursar de verdad. Una
+    // materia bloqueada no se toca hasta que se marque su correlativa.
+    if (materia.estado === 'bloqueada' || materia.estado === 'aprobada') return
+    setSimuladas((previas) => [...previas, materiaId])
   }
 
   function alternarSimulacion() {
@@ -150,6 +167,8 @@ function MiCarrera() {
                   indice={indice}
                   seleccionId={seleccionId}
                   rutaCriticaIds={rutaCriticaIds}
+                  simuladasIds={simuladas}
+                  modoSimulacion={modoSimulacion}
                   onSeleccionar={alTocarMateria}
                 />
               ) : (
@@ -243,6 +262,10 @@ function PanelSimulacion({ cantidad, onLimpiar, onSalir }) {
         Tocá materias en el mapa para darlas por aprobadas y ver cómo cambiaría todo.{' '}
         <strong className="font-medium text-slate-900">Nada de esto se guarda</strong> en tu
         historial.
+      </p>
+      <p className="mt-1.5 text-xs leading-relaxed text-slate-500">
+        Solo podés marcar las que ya podrías cursar. Las bloqueadas se habilitan recién cuando
+        marcás su correlativa, y las flechas violetas muestran qué desbloqueó cada una.
       </p>
       <p className="mt-2 text-xs font-medium text-slate-900">
         {cantidad === 0

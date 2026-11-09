@@ -7,12 +7,12 @@
 // mueve. Como las posiciones son determinísticas, las líneas se dibujan en
 // un <svg> con esas mismas coordenadas, sin tener que medir el DOM.
 
-export const ANCHO_TARJETA = 190
-export const ALTO_TARJETA = 78
-export const SEPARACION_X = 70
-export const SEPARACION_Y = 14
+export const ANCHO_TARJETA = 225
+export const ALTO_TARJETA = 90
+export const SEPARACION_X = 80
+export const SEPARACION_Y = 16
 export const MARGEN = 16
-export const ALTO_ENCABEZADO = 28
+export const ALTO_ENCABEZADO = 32
 
 // La flecha termina un poco antes del borde de la tarjeta: el <svg> va
 // detrás de las tarjetas, así que una punta que llegue justo al borde

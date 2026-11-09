@@ -13,6 +13,7 @@ function TarjetaMateria({
   atenuada,
   requiereTodo,
   enRutaCritica,
+  deshabilitada,
   onSeleccionar,
 }) {
   const config = configDeEstado(materia.estado)
@@ -24,9 +25,11 @@ function TarjetaMateria({
   return (
     <button
       type="button"
+      data-materia={materia.materia_id}
+      disabled={deshabilitada}
       onClick={() => onSeleccionar(materia.materia_id)}
       style={{ left: x, top: y, width: ANCHO_TARJETA, height: ALTO_TARJETA }}
-      className={`absolute flex flex-col justify-center rounded-lg border-2 px-2.5 text-left shadow-sm transition-all ${
+      className={`absolute flex flex-col justify-center rounded-lg border-2 px-3 text-left shadow-sm transition-all ${
         config.border
       } ${config.bg} ${
         // El anillo de selección gana sobre el de ruta crítica: el foco es
@@ -38,6 +41,8 @@ function TarjetaMateria({
             ? 'ring-2 ring-[#ea6c1f] ring-offset-1'
             : 'hover:shadow-md'
       } ${atenuada ? 'opacity-30' : ''} ${
+        deshabilitada ? 'cursor-not-allowed opacity-40' : ''
+      } ${
         materia.simulado ? 'outline outline-2 outline-dashed outline-[#7c5fe0] outline-offset-2' : ''
       }`}
       aria-pressed={seleccionada}
@@ -60,22 +65,22 @@ function TarjetaMateria({
         </span>
       )}
 
-      <div className="flex items-center gap-1">
-        <span className={`flex items-center gap-1 text-[11px] font-medium ${config.text}`}>
-          <Icon size={12} aria-hidden="true" />
+      <div className="flex items-center gap-1.5">
+        <span className={`flex items-center gap-1 text-xs font-medium ${config.text}`}>
+          <Icon size={13} aria-hidden="true" />
           {config.label}
           {materia.estado === 'aprobada' && materia.nota != null && ` · ${materia.nota}`}
         </span>
-        <span className="ml-auto shrink-0 text-[9px] text-slate-400">{materia.codigo}</span>
+        <span className="ml-auto shrink-0 text-[10px] text-slate-400">{materia.codigo}</span>
       </div>
 
-      <p className="mt-0.5 line-clamp-2 text-[13px] font-semibold leading-tight text-slate-900">
+      <p className="mt-1 line-clamp-2 text-sm font-semibold leading-tight text-slate-900">
         {materia.nombre}
       </p>
 
       {requiereTodo && (
-        <span className="mt-0.5 flex items-center gap-1 text-[9px] font-medium text-slate-500">
-          <Lock size={9} aria-hidden="true" />
+        <span className="mt-1 flex items-center gap-1 text-[10px] font-medium text-slate-500">
+          <Lock size={10} aria-hidden="true" />
           Requiere todo el plan aprobado
         </span>
       )}
