@@ -3,6 +3,7 @@ import MainLayout from './layouts/MainLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
 import Dashboard from './pages/Dashboard'
+import MiCarrera from './pages/MiCarrera'
 import PlanDeEstudios from './pages/PlanDeEstudios'
 import Historial from './pages/Historial'
 import RutaCritica from './pages/RutaCritica'
@@ -16,6 +17,7 @@ function App() {
       <Route element={<MainLayout />}>
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/mi-carrera" element={<MiCarrera />} />
           <Route path="/plan-de-estudios" element={<PlanDeEstudios />} />
           <Route path="/historial" element={<Historial />} />
           <Route path="/ruta-critica" element={<RutaCritica />} />
