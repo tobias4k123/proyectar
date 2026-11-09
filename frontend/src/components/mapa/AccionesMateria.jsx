@@ -10,6 +10,13 @@ const estilosBotonAprobar =
 const estilosBotonCorregir =
   'rounded-md px-2.5 py-1.5 text-xs font-medium text-[#d03b3b] hover:bg-[#d03b3b]/5 disabled:cursor-not-allowed disabled:opacity-60'
 
+// Notas mínimas del régimen de IFES, las mismas que valida el backend en
+// `routers/alumnos.py`: rindiendo el final se aprueba con 4, y promocionar
+// sin rendirlo exige 8. Acá se repiten para avisar antes de mandar el
+// pedido, pero la regla que vale es la del backend.
+const NOTA_MINIMA_FINAL = 4
+const NOTA_MINIMA_PROMOCION = 8
+
 // Las transiciones de estado de una materia, con su pedido de nota y sus
 // errores. Vive en su propio componente porque lo usan dos lugares: el
 // panel de detalle del mapa y cada fila de la vista de lista. Duplicar la
@@ -53,10 +60,23 @@ function AccionesMateria({ materia }) {
     actualizar.mutate({ materia_id: materia.materia_id, estado })
   }
 
+  // Desde "cursando" la aprobación es una promoción; desde "regular" es
+  // haber rendido el final. El mínimo cambia según el caso.
+  const promociona = materia.estado === 'cursando'
+  const notaMinima = promociona ? NOTA_MINIMA_PROMOCION : NOTA_MINIMA_FINAL
+
   function confirmarAprobacion() {
     const valor = Number(nota)
     if (!Number.isInteger(valor) || valor < 1 || valor > 10) {
       setError('La nota tiene que ser un número entero del 1 al 10')
+      return
+    }
+    if (valor < notaMinima) {
+      setError(
+        promociona
+          ? `Para promocionar hace falta un ${notaMinima} o más. Con menos nota te queda rendir el final.`
+          : `Para aprobar el final hace falta un ${notaMinima} o más.`,
+      )
       return
     }
     setError(null)
@@ -81,12 +101,12 @@ function AccionesMateria({ materia }) {
       <div>
         <div className="flex flex-wrap items-center gap-2">
           <label htmlFor={`nota-${materia.materia_id}`} className="text-xs font-medium text-slate-700">
-            Nota
+            Nota <span className="font-normal text-slate-400">(del {notaMinima} al 10)</span>
           </label>
           <input
             id={`nota-${materia.materia_id}`}
             type="number"
-            min={1}
+            min={notaMinima}
             max={10}
             value={nota}
             onChange={(event) => setNota(event.target.value)}
