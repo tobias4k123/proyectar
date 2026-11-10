@@ -4,11 +4,11 @@ import * as api from '../../lib/apiClient'
 import { useAuthStore } from '../../store/useAuthStore'
 
 const estilosBotonSecundario =
-  'rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60'
+  'rounded-md border border-slate-300 dark:border-slate-700 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60'
 const estilosBotonAprobar =
   'rounded-md bg-[#0ca30c] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#0ca30c]/90 disabled:cursor-not-allowed disabled:opacity-60'
 const estilosBotonCorregir =
-  'rounded-md px-2.5 py-1.5 text-xs font-medium text-[#d03b3b] hover:bg-[#d03b3b]/5 disabled:cursor-not-allowed disabled:opacity-60'
+  'rounded-md px-2.5 py-1.5 text-xs font-medium text-[#d03b3b] dark:text-[#f87171] hover:bg-[#d03b3b]/5 disabled:cursor-not-allowed disabled:opacity-60'
 
 // Notas mínimas del régimen de IFES, las mismas que valida el backend en
 // `routers/alumnos.py`: rindiendo el final se aprueba con 4, y promocionar
@@ -100,8 +100,8 @@ function AccionesMateria({ materia }) {
     return (
       <div>
         <div className="flex flex-wrap items-center gap-2">
-          <label htmlFor={`nota-${materia.materia_id}`} className="text-xs font-medium text-slate-700">
-            Nota <span className="font-normal text-slate-400">(del {notaMinima} al 10)</span>
+          <label htmlFor={`nota-${materia.materia_id}`} className="text-xs font-medium text-slate-700 dark:text-slate-300">
+            Nota <span className="font-normal text-slate-400 dark:text-slate-500">(del {notaMinima} al 10)</span>
           </label>
           <input
             id={`nota-${materia.materia_id}`}
@@ -110,14 +110,14 @@ function AccionesMateria({ materia }) {
             max={10}
             value={nota}
             onChange={(event) => setNota(event.target.value)}
-            className="w-16 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none"
+            className="w-16 rounded-md border border-slate-300 dark:border-slate-700 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none"
             autoFocus
           />
           <button
             type="button"
             disabled={procesando}
             onClick={confirmarAprobacion}
-            className="rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-md bg-slate-900 dark:bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-white dark:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Confirmar
           </button>
@@ -133,7 +133,7 @@ function AccionesMateria({ materia }) {
             Cancelar
           </button>
         </div>
-        {error && <p className="mt-2 text-xs text-[#d03b3b]">{error}</p>}
+        {error && <p className="mt-2 text-xs text-[#d03b3b] dark:text-[#f87171]">{error}</p>}
       </div>
     )
   }
@@ -216,7 +216,7 @@ function AccionesMateria({ materia }) {
           </button>
         )}
       </div>
-      {error && <p className="mt-2 text-xs text-[#d03b3b]">{error}</p>}
+      {error && <p className="mt-2 text-xs text-[#d03b3b] dark:text-[#f87171]">{error}</p>}
     </div>
   )
 }

@@ -62,7 +62,7 @@ function TarjetaMateria({
       {puedeAvanzar && (
         <span
           title={materia.estado === 'regular' ? 'Podés rendir el final' : 'Podés promocionarla'}
-          className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-white shadow"
+          className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow"
         >
           <Sparkles size={11} aria-hidden="true" />
         </span>
@@ -74,15 +74,15 @@ function TarjetaMateria({
           {config.label}
           {materia.estado === 'aprobada' && materia.nota != null && ` · ${materia.nota}`}
         </span>
-        <span className="ml-auto shrink-0 text-[10px] text-slate-400">{materia.codigo}</span>
+        <span className="ml-auto shrink-0 text-[10px] text-slate-400 dark:text-slate-500">{materia.codigo}</span>
       </div>
 
-      <p className="mt-1 line-clamp-2 text-sm font-semibold leading-tight text-slate-900">
+      <p className="mt-1 line-clamp-2 text-sm font-semibold leading-tight text-slate-900 dark:text-slate-100">
         {materia.nombre}
       </p>
 
       {requiereTodo && (
-        <span className="mt-1 flex items-center gap-1 text-[10px] font-medium text-slate-500">
+        <span className="mt-1 flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
           <Lock size={10} aria-hidden="true" />
           Requiere todo el plan aprobado
         </span>

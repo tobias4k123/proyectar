@@ -2,8 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { construirMapa } from '../../lib/mapaMaterias'
 import TarjetaMateria from './TarjetaMateria'
 
-const COLOR_LINEA = '#cbd5e1'
-const COLOR_LINEA_ACTIVA = '#0f172a'
+// Los dos grises salen de variables CSS (ver index.css) para que cambien
+// solos en modo oscuro: el <svg> recibe colores como atributos, no como
+// clases de Tailwind. El naranja de la ruta crítica y el violeta del
+// simulador se mantienen igual en los dos modos, porque son marcas de
+// significado y no parte del fondo.
+const COLOR_LINEA = 'var(--linea-mapa)'
+const COLOR_LINEA_ACTIVA = 'var(--linea-mapa-activa)'
 const COLOR_RUTA_CRITICA = '#ea6c1f'
 const COLOR_SIMULADO = '#7c5fe0'
 
@@ -84,7 +89,7 @@ function MapaMaterias({
   return (
     <div
       ref={contenedorRef}
-      className="overflow-x-auto rounded-lg border border-slate-200 bg-white p-2"
+      className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2"
     >
       <div className="relative mx-auto" style={{ width: mapa.ancho, height: mapa.alto }}>
         <svg
@@ -158,7 +163,7 @@ function MapaMaterias({
           <p
             key={columna.anio}
             style={{ left: columna.x, width: mapa.anchoTarjeta }}
-            className="absolute top-0 text-center text-xs font-semibold uppercase tracking-wide text-slate-400"
+            className="absolute top-0 text-center text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500"
           >
             {columna.anio}° año
           </p>

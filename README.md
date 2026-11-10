@@ -16,6 +16,7 @@ Proyecto final de *Prácticas Profesionalizantes II* — IFES Neuquén. Integran
 | **Ruta crítica** y **simulador**: dos capas sobre el mismo mapa; el simulador no toca el historial real | Acceso restringido por rol (el resto de los usuarios recibe 403) |
 | **Vista de lista**: la misma información en tabla, para cargar varias materias seguidas | |
 | **Inicio**: porcentaje de avance, promedio y conteos por estado | |
+| **Modo claro y oscuro**: arranca según la preferencia del sistema y se cambia desde el encabezado | |
 
 ## Requisitos
 

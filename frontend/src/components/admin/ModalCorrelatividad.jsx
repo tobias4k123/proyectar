@@ -29,25 +29,25 @@ function ModalCorrelatividad({ materias, onCerrar, onGuardado }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-      <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-slate-950/70 p-4">
+      <div className="w-full max-w-sm rounded-lg bg-white dark:bg-slate-900 p-6 shadow-lg">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Nueva correlatividad</h2>
-          <button type="button" onClick={onCerrar} className="text-slate-400 hover:text-slate-600">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Nueva correlatividad</h2>
+          <button type="button" onClick={onCerrar} className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">
             <X size={18} aria-hidden="true" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
-            <label htmlFor="materia" className="text-sm font-medium text-slate-700">
+            <label htmlFor="materia" className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Materia
             </label>
             <select
               id="materia"
               value={materiaId}
               onChange={(event) => setMateriaId(event.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+              className="w-full rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
               required
             >
               {materias.map((materia) => (
@@ -59,14 +59,14 @@ function ModalCorrelatividad({ materias, onCerrar, onGuardado }) {
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="tipo" className="text-sm font-medium text-slate-700">
+            <label htmlFor="tipo" className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Para
             </label>
             <select
               id="tipo"
               value={tipo}
               onChange={(event) => setTipo(event.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+              className="w-full rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
             >
               <option value="cursar">Cursar</option>
               <option value="final">Rendir el final</option>
@@ -74,14 +74,14 @@ function ModalCorrelatividad({ materias, onCerrar, onGuardado }) {
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="requiere" className="text-sm font-medium text-slate-700">
+            <label htmlFor="requiere" className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Necesita la correlativa
             </label>
             <select
               id="requiere"
               value={requiere}
               onChange={(event) => setRequiere(event.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+              className="w-full rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
             >
               <option value="cursada">Cursada</option>
               <option value="aprobada">Aprobada</option>
@@ -89,14 +89,14 @@ function ModalCorrelatividad({ materias, onCerrar, onGuardado }) {
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="correlativa" className="text-sm font-medium text-slate-700">
+            <label htmlFor="correlativa" className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Correlativa
             </label>
             <select
               id="correlativa"
               value={correlativaId}
               onChange={(event) => setCorrelativaId(event.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+              className="w-full rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
               required
             >
               {materias.map((materia) => (
@@ -107,20 +107,20 @@ function ModalCorrelatividad({ materias, onCerrar, onGuardado }) {
             </select>
           </div>
 
-          {mutation.isError && <p className="text-sm text-[#d03b3b]">{mutation.error.message}</p>}
+          {mutation.isError && <p className="text-sm text-[#d03b3b] dark:text-[#f87171]">{mutation.error.message}</p>}
 
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onCerrar}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-md bg-slate-900 dark:bg-slate-100 px-3 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               {mutation.isPending ? 'Guardando…' : 'Guardar'}
             </button>
