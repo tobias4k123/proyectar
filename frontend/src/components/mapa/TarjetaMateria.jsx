@@ -1,6 +1,6 @@
 import { Lock, Route, Sparkles } from 'lucide-react'
 import { configDeEstado } from '../../lib/estados'
-import { ALTO_TARJETA, ANCHO_TARJETA } from '../../lib/mapaMaterias'
+import { ALTO_TARJETA_REM, ANCHO_TARJETA_REM } from '../../lib/mapaMaterias'
 
 // Una materia del mapa. Es un <button> y no un <div> a propósito: así se
 // puede recorrer el mapa con el teclado y cada materia se anuncia como lo
@@ -28,7 +28,10 @@ function TarjetaMateria({
       data-materia={materia.materia_id}
       disabled={deshabilitada}
       onClick={() => onSeleccionar(materia.materia_id)}
-      style={{ left: x, top: y, width: ANCHO_TARJETA, height: ALTO_TARJETA }}
+      // El alto y el ancho van en rem y las posiciones en píxeles ya
+      // convertidos: así la tarjeta crece con el resto de la interfaz y
+      // sigue coincidiendo con las líneas del <svg>.
+      style={{ left: x, top: y, width: `${ANCHO_TARJETA_REM}rem`, height: `${ALTO_TARJETA_REM}rem` }}
       className={`absolute flex flex-col justify-center rounded-lg border-2 px-3 text-left shadow-sm transition-all ${
         config.border
       } ${config.bg} ${

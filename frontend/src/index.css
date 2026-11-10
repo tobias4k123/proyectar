@@ -4,6 +4,19 @@
   --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Toda la interfaz se mide en rem (Tailwind usa rem tanto para los textos
+   como para los espaciados), así que moviendo el tamaño de letra de la
+   raíz escala junta: el logo, el menú, los botones, las tablas, el panel
+   lateral y las materias del mapa. Así, en un monitor grande no crece solo
+   una parte y el conjunto se mantiene en proporción.
+
+   De 16px en una pantalla de 1280 a 20px en una de 2100 o más. Por debajo
+   de 1280 se queda en 16px: achicar el texto no haría que entre más
+   contenido, solo lo volvería más difícil de leer. */
+html {
+  font-size: clamp(16px, 0.47vw + 10px, 20px);
+}
+
 body {
   margin: 0;
 }

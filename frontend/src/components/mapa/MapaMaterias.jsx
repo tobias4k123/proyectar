@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { construirMapa, ANCHO_TARJETA } from '../../lib/mapaMaterias'
+import { construirMapa } from '../../lib/mapaMaterias'
 import TarjetaMateria from './TarjetaMateria'
 
 const COLOR_LINEA = '#cbd5e1'
@@ -7,11 +7,30 @@ const COLOR_LINEA_ACTIVA = '#0f172a'
 const COLOR_RUTA_CRITICA = '#ea6c1f'
 const COLOR_SIMULADO = '#7c5fe0'
 
-// Hasta cuánto se agranda el mapa para aprovechar el ancho disponible. No
-// se achica nunca por debajo de 1: en una pantalla angosta es preferible
-// desplazar el mapa a la izquierda y la derecha que dejar las materias
-// ilegibles.
-const ESCALA_MAXIMA = 1.6
+// Cuánto mide un rem y cuánto ancho tiene el mapa para ocupar. Las dos
+// cosas cambian con el tamaño de la ventana: el tamaño de letra de la raíz
+// se adapta a la pantalla (ver index.css) y de ahí sale la escala de toda
+// la interfaz, incluido este mapa.
+function useMedidasDelMapa() {
+  const contenedorRef = useRef(null)
+  const [medidas, setMedidas] = useState({ pxPorRem: 16, ancho: 0 })
+
+  useEffect(() => {
+    const nodo = contenedorRef.current
+    if (!nodo) return undefined
+    const actualizar = (ancho) =>
+      setMedidas({
+        pxPorRem: parseFloat(getComputedStyle(document.documentElement).fontSize) || 16,
+        ancho,
+      })
+    const observador = new ResizeObserver(([entrada]) => actualizar(entrada.contentRect.width))
+    observador.observe(nodo)
+    actualizar(nodo.clientWidth)
+    return () => observador.disconnect()
+  }, [])
+
+  return [contenedorRef, medidas]
+}
 
 // El mapa completo: las materias ubicadas por año y las líneas de
 // correlatividad dibujadas en un <svg> que va por detrás de las tarjetas.
@@ -29,23 +48,11 @@ function MapaMaterias({
   modoSimulacion = false,
   onSeleccionar,
 }) {
-  const mapa = useMemo(() => construirMapa(indice), [indice])
-  const contenedorRef = useRef(null)
-  const [escala, setEscala] = useState(1)
-
-  // El mapa se dibuja con medidas fijas y después se escala a lo que haya
-  // de ancho, así aprovecha la pantalla sin que haya que rehacer el cálculo
-  // de posiciones ni el de las líneas.
-  useEffect(() => {
-    const nodo = contenedorRef.current
-    if (!nodo) return undefined
-    const observador = new ResizeObserver(([entrada]) => {
-      const disponible = entrada.contentRect.width
-      setEscala(Math.min(Math.max(disponible / mapa.ancho, 1), ESCALA_MAXIMA))
-    })
-    observador.observe(nodo)
-    return () => observador.disconnect()
-  }, [mapa.ancho])
+  const [contenedorRef, { pxPorRem, ancho: anchoDisponible }] = useMedidasDelMapa()
+  const mapa = useMemo(
+    () => construirMapa(indice, pxPorRem, anchoDisponible),
+    [indice, pxPorRem, anchoDisponible],
+  )
 
   const enRutaCritica = useMemo(() => new Set(rutaCriticaIds), [rutaCriticaIds])
   const simuladas = useMemo(() => new Set(simuladasIds), [simuladasIds])
@@ -75,118 +82,109 @@ function MapaMaterias({
   }, [mapa.conexiones, seleccionId])
 
   return (
-    <div ref={contenedorRef} className="overflow-x-auto rounded-lg border border-slate-200 bg-white p-2">
-      {/* mx-auto: si después de escalar al máximo todavía sobra ancho, el
-          mapa queda centrado en vez de pegado a la izquierda. */}
-      <div className="mx-auto" style={{ width: mapa.ancho * escala, height: mapa.alto * escala }}>
-        <div
-          className="relative"
-          style={{
-            width: mapa.ancho,
-            height: mapa.alto,
-            transform: `scale(${escala})`,
-            transformOrigin: 'top left',
-          }}
+    <div
+      ref={contenedorRef}
+      className="overflow-x-auto rounded-lg border border-slate-200 bg-white p-2"
+    >
+      <div className="relative mx-auto" style={{ width: mapa.ancho, height: mapa.alto }}>
+        <svg
+          data-mapa="correlatividades"
+          className="pointer-events-none absolute inset-0"
+          width={mapa.ancho}
+          height={mapa.alto}
+          aria-hidden="true"
         >
-          <svg
-            data-mapa="correlatividades"
-            className="pointer-events-none absolute inset-0"
-            width={mapa.ancho}
-            height={mapa.alto}
-            aria-hidden="true"
+          <defs>
+            {[
+              ['punta-linea', COLOR_LINEA],
+              ['punta-linea-activa', COLOR_LINEA_ACTIVA],
+              ['punta-linea-critica', COLOR_RUTA_CRITICA],
+              ['punta-linea-simulada', COLOR_SIMULADO],
+            ].map(([id, color]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="5"
+                markerHeight="5"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={color} />
+              </marker>
+            ))}
+          </defs>
+
+          {mapa.conexiones.map((conexion) => {
+            const activa =
+              seleccionId !== null &&
+              (conexion.origenId === seleccionId || conexion.destinoId === seleccionId)
+            // En el simulador se resalta lo que sale de cada materia dada
+            // por aprobada: así se ve de dónde viene cada materia que se
+            // acaba de habilitar, en vez de que aparezca sin explicación.
+            const desdeSimulada = simuladas.has(conexion.origenId)
+            const critica = tramosCriticos.has(conexion.id)
+            const apagada = seleccionId !== null && !activa
+
+            let color = COLOR_LINEA
+            let marcador = 'punta-linea'
+            if (activa) {
+              color = COLOR_LINEA_ACTIVA
+              marcador = 'punta-linea-activa'
+            } else if (desdeSimulada) {
+              color = COLOR_SIMULADO
+              marcador = 'punta-linea-simulada'
+            } else if (critica) {
+              color = COLOR_RUTA_CRITICA
+              marcador = 'punta-linea-critica'
+            }
+
+            return (
+              <path
+                key={conexion.id}
+                d={conexion.d}
+                fill="none"
+                stroke={color}
+                strokeWidth={activa || critica || desdeSimulada ? 2.5 : 1.5}
+                opacity={apagada ? 0.35 : 1}
+                markerEnd={`url(#${marcador})`}
+              />
+            )
+          })}
+        </svg>
+
+        {mapa.columnas.map((columna) => (
+          <p
+            key={columna.anio}
+            style={{ left: columna.x, width: mapa.anchoTarjeta }}
+            className="absolute top-0 text-center text-xs font-semibold uppercase tracking-wide text-slate-400"
           >
-            <defs>
-              {[
-                ['punta-linea', COLOR_LINEA],
-                ['punta-linea-activa', COLOR_LINEA_ACTIVA],
-                ['punta-linea-critica', COLOR_RUTA_CRITICA],
-                ['punta-linea-simulada', COLOR_SIMULADO],
-              ].map(([id, color]) => (
-                <marker
-                  key={id}
-                  id={id}
-                  viewBox="0 0 10 10"
-                  refX="9"
-                  refY="5"
-                  markerWidth="5"
-                  markerHeight="5"
-                  orient="auto-start-reverse"
-                >
-                  <path d="M 0 0 L 10 5 L 0 10 z" fill={color} />
-                </marker>
-              ))}
-            </defs>
+            {columna.anio}° año
+          </p>
+        ))}
 
-            {mapa.conexiones.map((conexion) => {
-              const activa =
-                seleccionId !== null &&
-                (conexion.origenId === seleccionId || conexion.destinoId === seleccionId)
-              // En el simulador se resalta lo que sale de cada materia dada
-              // por aprobada: así se ve de dónde viene cada materia que se
-              // acaba de habilitar, en vez de que aparezca sin explicación.
-              const desdeSimulada = simuladas.has(conexion.origenId)
-              const critica = tramosCriticos.has(conexion.id)
-              const apagada = seleccionId !== null && !activa
-
-              let color = COLOR_LINEA
-              let marcador = 'punta-linea'
-              if (activa) {
-                color = COLOR_LINEA_ACTIVA
-                marcador = 'punta-linea-activa'
-              } else if (desdeSimulada) {
-                color = COLOR_SIMULADO
-                marcador = 'punta-linea-simulada'
-              } else if (critica) {
-                color = COLOR_RUTA_CRITICA
-                marcador = 'punta-linea-critica'
-              }
-
-              return (
-                <path
-                  key={conexion.id}
-                  d={conexion.d}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth={activa || critica || desdeSimulada ? 2.5 : 1.5}
-                  opacity={apagada ? 0.35 : 1}
-                  markerEnd={`url(#${marcador})`}
-                />
-              )
-            })}
-          </svg>
-
-          {mapa.columnas.map((columna) => (
-            <p
-              key={columna.anio}
-              style={{ left: columna.x, width: ANCHO_TARJETA }}
-              className="absolute top-0 text-center text-sm font-semibold uppercase tracking-wide text-slate-400"
-            >
-              {columna.anio}° año
-            </p>
-          ))}
-
-          {mapa.materias.map(({ materia, x, y }) => (
-            <TarjetaMateria
-              key={materia.materia_id}
-              materia={materia}
-              x={x}
-              y={y}
-              seleccionada={seleccionId === materia.materia_id}
-              atenuada={Boolean(relacionadas) && !relacionadas.has(materia.materia_id)}
-              requiereTodo={indice.requierenTodo.has(materia.materia_id)}
-              enRutaCritica={enRutaCritica.has(materia.materia_id)}
-              // En el simulador solo tiene sentido tocar lo que hoy se
-              // podría cursar: dar por aprobada una materia bloqueada sería
-              // simular algo que no puede pasar.
-              deshabilitada={
-                modoSimulacion &&
-                (materia.estado === 'bloqueada' ||
-                  (materia.estado === 'aprobada' && !materia.simulado))
-              }
-              onSeleccionar={onSeleccionar}
-            />
-          ))}
-        </div>
+        {mapa.materias.map(({ materia, x, y }) => (
+          <TarjetaMateria
+            key={materia.materia_id}
+            materia={materia}
+            x={x}
+            y={y}
+            seleccionada={seleccionId === materia.materia_id}
+            atenuada={Boolean(relacionadas) && !relacionadas.has(materia.materia_id)}
+            requiereTodo={indice.requierenTodo.has(materia.materia_id)}
+            enRutaCritica={enRutaCritica.has(materia.materia_id)}
+            // En el simulador solo tiene sentido tocar lo que hoy se
+            // podría cursar: dar por aprobada una materia bloqueada sería
+            // simular algo que no puede pasar.
+            deshabilitada={
+              modoSimulacion &&
+              (materia.estado === 'bloqueada' ||
+                (materia.estado === 'aprobada' && !materia.simulado))
+            }
+            onSeleccionar={onSeleccionar}
+          />
+        ))}
       </div>
     </div>
   )
