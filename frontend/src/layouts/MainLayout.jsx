@@ -10,11 +10,8 @@ import { queryClient } from '../lib/queryClient'
 const RUTAS_ANCHO_COMPLETO = ['/mi-carrera']
 
 const navItems = [
-  { to: '/', label: 'Dashboard', end: true },
+  { to: '/', label: 'Inicio', end: true },
   { to: '/mi-carrera', label: 'Mi Carrera' },
-  { to: '/plan-de-estudios', label: 'Plan de Estudios' },
-  { to: '/historial', label: 'Historial Académico' },
-  { to: '/ruta-critica', label: 'Ruta Crítica' },
 ]
 
 function MainLayout() {

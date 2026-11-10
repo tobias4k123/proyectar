@@ -11,10 +11,11 @@ Proyecto final de *Prácticas Profesionalizantes II* — IFES Neuquén. Integran
 | Para el alumno | Para el administrador |
 |---|---|
 | Registro, login y logout (JWT) | Alta, edición y baja de materias |
-| **Plan de estudios**: grafo interactivo con el estado de cada materia (aprobada, regular, cursando, disponible, bloqueada) y modo foco para ver las dependencias de una materia | Alta y baja de correlatividades (tipo *cursar*/*final*, requiere *cursada*/*aprobada*) |
-| **Historial académico**: cargar y corregir el estado y la nota de cada materia | Validación de integridad: rechaza correlatividades que cerrarían una dependencia circular |
-| **Dashboard**: porcentaje de avance, promedio y conteos por estado | Acceso restringido por rol (el resto de los usuarios recibe 403) |
-| **Ruta crítica** y **simulador** de escenarios | |
+| **Mi Carrera**: el plan completo como mapa, con el estado de cada materia (aprobada, regular, cursando, disponible, bloqueada) | Alta y baja de correlatividades (tipo *cursar*/*final*, requiere *cursada*/*aprobada*) |
+| Al tocar una materia, un panel explica en texto qué necesita, por qué está bloqueada y qué habilita, y permite cargar su estado y su nota | Validación de integridad: rechaza correlatividades que cerrarían una dependencia circular |
+| **Ruta crítica** y **simulador**: dos capas sobre el mismo mapa; el simulador no toca el historial real | Acceso restringido por rol (el resto de los usuarios recibe 403) |
+| **Vista de lista**: la misma información en tabla, para cargar varias materias seguidas | |
+| **Inicio**: porcentaje de avance, promedio y conteos por estado | |
 
 ## Requisitos
 
@@ -99,13 +100,16 @@ proyectar/
 │   └── tests/                # suite de pytest
 └── frontend/                 # React 19 + Vite
     └── src/
-        ├── pages/            # Dashboard, PlanDeEstudios, Historial, RutaCritica, Admin, Login, Register
-        ├── components/       # grafo (React Flow), rutas protegidas, pantallas de administración
+        ├── pages/            # Dashboard, MiCarrera, Admin, Login, Register
+        ├── components/mapa/   # mapa de materias, panel de detalle, vista de lista
+        ├── components/admin/  # pantallas de administración
         ├── store/            # sesión (Zustand)
-        └── lib/              # cliente de la API, layout del grafo, estados
+        └── lib/              # cliente de la API, layout del mapa, requisitos, estados
 ```
 
-**Stack:** FastAPI · SQLAlchemy · Alembic · PostgreSQL · NetworkX · JWT (python-jose) · bcrypt (costo 12) · React · React Router · TanStack Query · Zustand · React Flow · Tailwind CSS · Docker Compose.
+**Stack:** FastAPI · SQLAlchemy · Alembic · PostgreSQL · NetworkX · JWT (python-jose) · bcrypt (costo 12) · React · React Router · TanStack Query · Zustand · Tailwind CSS · Docker Compose.
+
+El mapa de materias se dibuja con posiciones calculadas y un `<svg>` propio, sin librería de diagramas: así entra entero en pantalla, sin desplazamiento ni zoom, y acompaña el tamaño del resto de la interfaz.
 
 ### Variables de entorno
 

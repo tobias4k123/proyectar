@@ -1,9 +1,10 @@
 import { CheckCircle2, BadgeCheck, Clock, Circle, Lock } from 'lucide-react'
 
 // Los 5 estados reales que calcula el backend (backend/app/grafo.py).
-// Config compartida por el grafo (MateriaNode/EstadoLegend) y el
-// historial (Historial.jsx), para no repetir colores/íconos en varios
-// lugares y que quede todo consistente si se ajusta la paleta.
+// Config compartida por todo lo que muestra una materia -- el mapa, su
+// panel, la vista de lista y la leyenda -- para no repetir colores e
+// íconos en varios lugares y que quede todo consistente si se ajusta la
+// paleta.
 export const ESTADO_CONFIG = {
   aprobada: {
     label: 'Aprobada',
