@@ -41,11 +41,19 @@ function MainLayout() {
   return (
     <div className="flex min-h-svh flex-col bg-slate-50 text-slate-900">
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        {/* El encabezado se acomoda en varias filas cuando no entra de una:
+            con el menú completo no alcanzaba el ancho de una tablet y el
+            botón de salir quedaba fuera de la pantalla, haciendo que todas
+            las pantallas se desplazaran de costado. */}
+        <div
+          className={`mx-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-6 py-4 ${
+            anchoCompleto ? '' : 'max-w-7xl'
+          }`}
+        >
           <span className="text-lg font-semibold tracking-tight">ProyectAR</span>
 
           {isAuthenticated && (
-            <nav className="flex gap-1">
+            <nav className="order-last flex w-full flex-wrap gap-1 lg:order-none lg:w-auto">
               {itemsDeNav.map((item) => (
                 <NavLink
                   key={item.to}
