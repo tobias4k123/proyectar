@@ -11,7 +11,7 @@ const COLOR_SIMULADO = '#7c5fe0'
 // se achica nunca por debajo de 1: en una pantalla angosta es preferible
 // desplazar el mapa a la izquierda y la derecha que dejar las materias
 // ilegibles.
-const ESCALA_MAXIMA = 1.45
+const ESCALA_MAXIMA = 1.6
 
 // El mapa completo: las materias ubicadas por año y las líneas de
 // correlatividad dibujadas en un <svg> que va por detrás de las tarjetas.
@@ -76,7 +76,9 @@ function MapaMaterias({
 
   return (
     <div ref={contenedorRef} className="overflow-x-auto rounded-lg border border-slate-200 bg-white p-2">
-      <div style={{ width: mapa.ancho * escala, height: mapa.alto * escala }}>
+      {/* mx-auto: si después de escalar al máximo todavía sobra ancho, el
+          mapa queda centrado en vez de pegado a la izquierda. */}
+      <div className="mx-auto" style={{ width: mapa.ancho * escala, height: mapa.alto * escala }}>
         <div
           className="relative"
           style={{

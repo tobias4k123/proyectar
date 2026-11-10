@@ -183,7 +183,9 @@ function MiCarrera() {
               )}
             </div>
 
-            <div className="w-full space-y-4 lg:w-80 lg:shrink-0">
+            {/* El panel se ensancha recién en pantallas grandes: a 1280px
+                robarle 64px al mapa lo obliga a desplazarse. */}
+            <div className="w-full space-y-4 lg:w-80 lg:shrink-0 2xl:w-96">
               {modoSimulacion && (
                 <PanelSimulacion
                   cantidad={simuladas.length}
