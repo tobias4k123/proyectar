@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { FlaskConical, LayoutGrid, List, Route, RotateCcw } from 'lucide-react'
 import * as api from '../lib/apiClient'
@@ -18,13 +18,30 @@ import PanelMateria from '../components/mapa/PanelMateria'
 // Los datos salen siempre de GET /grafo/simulacion, que con la lista de
 // materias simuladas vacía devuelve exactamente el grafo real más la ruta
 // crítica ya calculada: así alcanza una sola consulta para las tres cosas.
+// El mapa son tres columnas de año, una al lado de la otra: en un celular
+// no hay forma de que entren sin desplazarse de costado. Así que en
+// pantallas chicas la vista que se abre primero es la lista, que se lee
+// bien en una sola columna. Es solo el punto de partida: el alumno puede
+// pasar al mapa con el botón y desplazarlo, como en cualquier plano.
+// 639px es el límite de `sm` en Tailwind: el mismo que usan la lista y la
+// administración para apilarse en una columna.
+function esPantallaChica() {
+  if (typeof window === 'undefined' || !window.matchMedia) return false
+  return window.matchMedia('(max-width: 639px)').matches
+}
+
+function vistaInicial() {
+  return esPantallaChica() ? 'lista' : 'mapa'
+}
+
 function MiCarrera() {
   const token = useAuthStore((state) => state.token)
   const [seleccionId, setSeleccionId] = useState(null)
-  const [vista, setVista] = useState('mapa')
+  const [vista, setVista] = useState(vistaInicial)
   const [mostrarRutaCritica, setMostrarRutaCritica] = useState(false)
   const [modoSimulacion, setModoSimulacion] = useState(false)
   const [simuladas, setSimuladas] = useState([])
+  const panelRef = useRef(null)
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['simulacion', simuladas],
@@ -176,8 +193,19 @@ function MiCarrera() {
                   indice={indice}
                   rutaCriticaIds={rutaCriticaIds}
                   onSeleccionar={(materiaId) => {
-                    setVista('mapa')
                     setSeleccionId(materiaId)
+                    // En escritorio el panel aparece al costado, así que
+                    // conviene mostrar además la materia en el mapa. En
+                    // celular el mapa hay que desplazarlo de costado para
+                    // verlo, y el panel queda debajo de toda la lista: se
+                    // sigue en la lista y se lleva el panel a la vista.
+                    if (!esPantallaChica()) {
+                      setVista('mapa')
+                      return
+                    }
+                    requestAnimationFrame(() =>
+                      panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+                    )
                   }}
                 />
               )}
@@ -185,7 +213,7 @@ function MiCarrera() {
 
             {/* El panel se ensancha recién en pantallas grandes: a 1280px
                 robarle 64px al mapa lo obliga a desplazarse. */}
-            <div className="w-full space-y-4 lg:w-80 lg:shrink-0 2xl:w-96">
+            <div ref={panelRef} className="w-full space-y-4 lg:w-80 lg:shrink-0 2xl:w-96">
               {modoSimulacion && (
                 <PanelSimulacion
                   cantidad={simuladas.length}
