@@ -1,19 +1,9 @@
-import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, Check, Lock, X } from 'lucide-react'
-import * as api from '../../lib/apiClient'
-import { useAuthStore } from '../../store/useAuthStore'
+import { ArrowRight, Check, Lock, Route, X } from 'lucide-react'
 import { configDeEstado } from '../../lib/estados'
 import { desbloqueaA, requisitosDe } from '../../lib/requisitos'
+import AccionesMateria from './AccionesMateria'
 
 const MAXIMO_FALTANTES_LISTADOS = 8
-
-const estilosBotonSecundario =
-  'rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60'
-const estilosBotonAprobar =
-  'rounded-md bg-[#0ca30c] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#0ca30c]/90 disabled:cursor-not-allowed disabled:opacity-60'
-const estilosBotonCorregir =
-  'rounded-md px-2.5 py-1.5 text-xs font-medium text-[#d03b3b] hover:bg-[#d03b3b]/5 disabled:cursor-not-allowed disabled:opacity-60'
 
 function textoRequisito(requiere) {
   return requiere === 'aprobada' ? 'aprobada' : 'cursada'
@@ -32,13 +22,7 @@ function textoFaltante(requisito) {
 // muestra que hay una dependencia; acá se dice cuál es y si está cumplida,
 // que es lo que realmente necesita saber el alumno. Y es también donde se
 // carga el historial, para no tener que irse a otra pantalla.
-function PanelMateria({ indice, materia, onCerrar }) {
-  const token = useAuthStore((state) => state.token)
-  const queryClient = useQueryClient()
-  const [pidiendoNota, setPidiendoNota] = useState(false)
-  const [nota, setNota] = useState('')
-  const [error, setError] = useState(null)
-
+function PanelMateria({ indice, materia, enRutaCritica, onCerrar }) {
   const config = configDeEstado(materia.estado)
   const Icon = config.icon
   const requiereTodo = indice.requierenTodo.has(materia.materia_id)
@@ -47,55 +31,8 @@ function PanelMateria({ indice, materia, onCerrar }) {
   const habilita = desbloqueaA(indice, materia.materia_id)
   const faltanParaCursar = paraCursar.filter((requisito) => !requisito.cumple)
 
-  function alExito() {
-    queryClient.invalidateQueries({ queryKey: ['grafo'] })
-    queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-    queryClient.invalidateQueries({ queryKey: ['simulacion'] })
-    setPidiendoNota(false)
-    setNota('')
-    setError(null)
-  }
-
-  const actualizar = useMutation({
-    mutationFn: (cuerpo) => api.actualizarHistorial(token, cuerpo),
-    onSuccess: alExito,
-    onError: (err) => setError(err.message),
-  })
-
-  const eliminar = useMutation({
-    mutationFn: (materiaId) => api.eliminarHistorial(token, materiaId),
-    onSuccess: alExito,
-    onError: (err) => setError(err.message),
-  })
-
-  const procesando = actualizar.isPending || eliminar.isPending
-
-  function cambiarEstado(estado) {
-    setError(null)
-    actualizar.mutate({ materia_id: materia.materia_id, estado })
-  }
-
-  function confirmarAprobacion() {
-    const valor = Number(nota)
-    if (!Number.isInteger(valor) || valor < 1 || valor > 10) {
-      setError('La nota tiene que ser un número entero del 1 al 10')
-      return
-    }
-    setError(null)
-    actualizar.mutate({ materia_id: materia.materia_id, estado: 'aprobada', nota: valor })
-  }
-
-  function corregir() {
-    const confirmado = window.confirm(
-      `¿Deshacer la carga de "${materia.nombre}"? Vas a tener que volver a cargarla si fue un error.`,
-    )
-    if (!confirmado) return
-    setError(null)
-    eliminar.mutate(materia.materia_id)
-  }
-
   return (
-    <aside className="rounded-lg border border-slate-200 bg-white p-4 lg:sticky lg:top-6">
+    <aside className="rounded-lg border border-slate-200 bg-white p-4">
       <div className="flex items-start justify-between gap-2">
         <div>
           <h2 className="text-base font-semibold leading-tight text-slate-900">{materia.nombre}</h2>
@@ -113,13 +50,26 @@ function PanelMateria({ indice, materia, onCerrar }) {
         </button>
       </div>
 
-      <span
-        className={`mt-3 inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium ${config.bg} ${config.text}`}
-      >
-        <Icon size={13} aria-hidden="true" />
-        {config.label}
-        {materia.estado === 'aprobada' && materia.nota != null && ` · nota ${materia.nota}`}
-      </span>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium ${config.bg} ${config.text}`}
+        >
+          <Icon size={13} aria-hidden="true" />
+          {config.label}
+          {materia.estado === 'aprobada' && materia.nota != null && ` · nota ${materia.nota}`}
+        </span>
+        {enRutaCritica && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ea6c1f]/10 px-2 py-1 text-xs font-medium text-[#ea6c1f]">
+            <Route size={13} aria-hidden="true" />
+            En la ruta crítica
+          </span>
+        )}
+        {materia.simulado && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#7c5fe0]/10 px-2 py-1 text-xs font-medium text-[#7c5fe0]">
+            Simulada
+          </span>
+        )}
+      </div>
 
       {materia.estado === 'bloqueada' && faltanParaCursar.length > 0 && (
         <p className="mt-3 rounded-md bg-slate-50 p-2.5 text-xs leading-relaxed text-slate-600">
@@ -155,66 +105,11 @@ function PanelMateria({ indice, materia, onCerrar }) {
         </div>
       )}
 
-      {error && (
-        <p className="mt-3 rounded-md border border-[#d03b3b]/30 bg-[#d03b3b]/5 p-2 text-xs text-[#d03b3b]">
-          {error}
-        </p>
+      {materia.estado !== 'bloqueada' && (
+        <div className="mt-4 border-t border-slate-100 pt-3">
+          <AccionesMateria materia={materia} />
+        </div>
       )}
-
-      <div
-        className={
-          materia.estado === 'bloqueada' ? 'hidden' : 'mt-4 border-t border-slate-100 pt-3'
-        }
-      >
-        {pidiendoNota ? (
-          <div className="flex items-center gap-2">
-            <label htmlFor="nota" className="text-xs font-medium text-slate-700">
-              Nota
-            </label>
-            <input
-              id="nota"
-              type="number"
-              min={1}
-              max={10}
-              value={nota}
-              onChange={(event) => setNota(event.target.value)}
-              className="w-16 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none"
-              autoFocus
-            />
-            <button
-              type="button"
-              disabled={procesando}
-              onClick={confirmarAprobacion}
-              className="rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Confirmar
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setPidiendoNota(false)
-                setNota('')
-                setError(null)
-              }}
-              className={estilosBotonSecundario}
-            >
-              Cancelar
-            </button>
-          </div>
-        ) : (
-          <Acciones
-            materia={materia}
-            procesando={procesando}
-            onCambiarEstado={cambiarEstado}
-            onAprobar={() => {
-              setError(null)
-              setNota('')
-              setPidiendoNota(true)
-            }}
-            onCorregir={corregir}
-          />
-        )}
-      </div>
     </aside>
   )
 }
@@ -284,86 +179,6 @@ function RequisitoTodoElPlan({ requisitos }) {
             <li className="pl-[18px] text-xs text-slate-400">y {restantes} más</li>
           )}
         </ul>
-      )}
-    </div>
-  )
-}
-
-// Las mismas transiciones que ofrece la pantalla de Historial Académico,
-// pero para una sola materia. Quién puede hacer qué lo decide el backend:
-// acá solo se muestran los botones que corresponden al estado que informó.
-function Acciones({ materia, procesando, onCambiarEstado, onAprobar, onCorregir }) {
-  // Para una materia bloqueada no hay nada que hacer todavía, y el motivo
-  // ya está explicado más arriba en el panel.
-  if (materia.estado === 'bloqueada') return null
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {materia.estado === 'disponible' && (
-        <button
-          type="button"
-          disabled={procesando}
-          onClick={() => onCambiarEstado('cursando')}
-          className={estilosBotonSecundario}
-        >
-          Empezar a cursar
-        </button>
-      )}
-
-      {materia.estado === 'cursando' && (
-        <>
-          <button
-            type="button"
-            disabled={procesando}
-            onClick={() => onCambiarEstado('regular')}
-            className={estilosBotonSecundario}
-          >
-            Marcar regular
-          </button>
-          {materia.puede_promocionar && (
-            <button
-              type="button"
-              disabled={procesando}
-              onClick={onAprobar}
-              className={estilosBotonAprobar}
-            >
-              Aprobar (promoción)
-            </button>
-          )}
-        </>
-      )}
-
-      {materia.estado === 'regular' && materia.puede_rendir_final && (
-        <button
-          type="button"
-          disabled={procesando}
-          onClick={onAprobar}
-          className={estilosBotonAprobar}
-        >
-          Aprobar (rendí el final)
-        </button>
-      )}
-
-      {(materia.estado === 'cursando' || materia.estado === 'regular') && (
-        <button
-          type="button"
-          disabled={procesando}
-          onClick={() => onCambiarEstado('libre')}
-          className={estilosBotonSecundario}
-        >
-          Marcar libre
-        </button>
-      )}
-
-      {materia.estado !== 'disponible' && (
-        <button
-          type="button"
-          disabled={procesando}
-          onClick={onCorregir}
-          className={estilosBotonCorregir}
-        >
-          Corregir carga
-        </button>
       )}
     </div>
   )

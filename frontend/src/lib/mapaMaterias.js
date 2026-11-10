@@ -6,18 +6,30 @@
 // se dibuja en pantalla: el alumno no tiene que descubrir que el gráfico se
 // mueve. Como las posiciones son determinísticas, las líneas se dibujan en
 // un <svg> con esas mismas coordenadas, sin tener que medir el DOM.
+//
+// Las medidas están en rem y no en píxeles para que el mapa crezca junto
+// con el resto de la interfaz: el tamaño de letra de la raíz se adapta a la
+// pantalla (ver index.css), así que en un monitor grande las materias, el
+// menú y el panel lateral crecen en la misma proporción. Quien dibuja
+// convierte a píxeles con el valor real de un rem.
 
-export const ANCHO_TARJETA = 190
-export const ALTO_TARJETA = 78
-export const SEPARACION_X = 70
-export const SEPARACION_Y = 14
-export const MARGEN = 16
-export const ALTO_ENCABEZADO = 28
+export const ANCHO_TARJETA_REM = 14
+export const ALTO_TARJETA_REM = 5.5
+export const SEPARACION_X_REM = 5
+export const SEPARACION_Y_REM = 1
+export const MARGEN_REM = 1
+export const ALTO_ENCABEZADO_REM = 2
+
+// Cuánto puede estirarse la separación entre años para ocupar el ancho
+// sobrante. Ensanchar los huecos aprovecha la pantalla sin deformar las
+// materias; pasado cierto punto las líneas quedan tan largas que cuesta
+// seguirlas, de ahí el tope.
+const FACTOR_SEPARACION_MAXIMA = 2.5
 
 // La flecha termina un poco antes del borde de la tarjeta: el <svg> va
 // detrás de las tarjetas, así que una punta que llegue justo al borde
 // queda medio tapada.
-const MARGEN_FLECHA = 3
+const MARGEN_FLECHA_REM = 0.2
 
 function porCodigo(porId) {
   return (a, b) => porId.get(a).codigo.localeCompare(porId.get(b).codigo)
@@ -61,15 +73,16 @@ function ordenarAnio(ids, entrantesIntra, salientesIntra, porId) {
   return emitidos
 }
 
-function trazado(origen, destino) {
-  const salidaDerechaX = origen.x + ANCHO_TARJETA
-  const centroOrigenY = origen.y + ALTO_TARJETA / 2
-  const centroDestinoY = destino.y + ALTO_TARJETA / 2
+function trazado(origen, destino, medidas) {
+  const { anchoTarjeta, altoTarjeta, separacionX, margenFlecha } = medidas
+  const salidaDerechaX = origen.x + anchoTarjeta
+  const centroOrigenY = origen.y + altoTarjeta / 2
+  const centroDestinoY = destino.y + altoTarjeta / 2
 
   // Años distintos: curva horizontal del borde derecho de la correlativa al
   // borde izquierdo de la materia que la exige.
   if (origen.columna !== destino.columna) {
-    const hasta = destino.x - MARGEN_FLECHA
+    const hasta = destino.x - margenFlecha
     const control = Math.max((hasta - salidaDerechaX) / 2, 20)
     return `M ${salidaDerechaX},${centroOrigenY} C ${salidaDerechaX + control},${centroOrigenY} ${
       hasta - control
@@ -80,27 +93,49 @@ function trazado(origen, destino) {
   // es la forma más directa de leer "esta va antes que esta".
   const distanciaFilas = Math.abs(destino.fila - origen.fila)
   if (distanciaFilas === 1 && destino.fila > origen.fila) {
-    const centroX = origen.x + ANCHO_TARJETA / 2
-    return `M ${centroX},${origen.y + ALTO_TARJETA} L ${centroX},${destino.y - MARGEN_FLECHA}`
+    const centroX = origen.x + anchoTarjeta / 2
+    return `M ${centroX},${origen.y + altoTarjeta} L ${centroX},${destino.y - margenFlecha}`
   }
 
   // Mismo año pero con materias en el medio: la línea se va por el costado
   // derecho, entre esta columna y la siguiente, en vez de pasar por encima
   // de las tarjetas intermedias.
-  const desvio = Math.min(24 + distanciaFilas * 6, SEPARACION_X - 18)
-  const hasta = salidaDerechaX + MARGEN_FLECHA
+  const desvio = Math.min(24 + distanciaFilas * 6, separacionX - 18)
+  const hasta = salidaDerechaX + margenFlecha
   return `M ${salidaDerechaX},${centroOrigenY} C ${salidaDerechaX + desvio},${centroOrigenY} ${
     salidaDerechaX + desvio
   },${centroDestinoY} ${hasta},${centroDestinoY}`
 }
 
 // Arma el mapa completo a partir del índice de `requisitos.js`.
-export function construirMapa(indice) {
+//
+// `pxPorRem` es cuánto mide un rem ahora mismo, y `anchoDisponible` el
+// ancho que el mapa tiene para ocupar: con eso la separación entre años se
+// estira para llenar la pantalla sin agrandar las materias.
+export function construirMapa(indice, pxPorRem = 16, anchoDisponible = 0) {
   const { nodos, aristas, porId, requierenTodo } = indice
+
+  const anchoTarjeta = ANCHO_TARJETA_REM * pxPorRem
+  const altoTarjeta = ALTO_TARJETA_REM * pxPorRem
+  const separacionY = SEPARACION_Y_REM * pxPorRem
+  const margen = MARGEN_REM * pxPorRem
+  const altoEncabezado = ALTO_ENCABEZADO_REM * pxPorRem
+  const separacionBase = SEPARACION_X_REM * pxPorRem
 
   const anios = [...new Set(nodos.map((m) => m.anio_carrera))].sort((a, b) => a - b)
   const idsPorAnio = new Map(anios.map((anio) => [anio, []]))
   for (const materia of nodos) idsPorAnio.get(materia.anio_carrera).push(materia.materia_id)
+
+  const anchoMinimo =
+    margen * 2 + anios.length * anchoTarjeta + (anios.length - 1) * separacionBase
+  const sobrante = Math.max(anchoDisponible - anchoMinimo, 0)
+  const separacionX =
+    anios.length > 1
+      ? Math.min(
+          separacionBase + sobrante / (anios.length - 1),
+          separacionBase * FACTOR_SEPARACION_MAXIMA,
+        )
+      : separacionBase
 
   // Para ordenar cada año solo cuentan las dependencias internas de ese año,
   // y se ignoran las de las materias que exigen casi todo el plan (esas no
@@ -124,8 +159,8 @@ export function construirMapa(indice) {
       posiciones.set(id, {
         columna,
         fila,
-        x: MARGEN + columna * (ANCHO_TARJETA + SEPARACION_X),
-        y: MARGEN + ALTO_ENCABEZADO + fila * (ALTO_TARJETA + SEPARACION_Y),
+        x: margen + columna * (anchoTarjeta + separacionX),
+        y: margen + altoEncabezado + fila * (altoTarjeta + separacionY),
       })
     })
   })
@@ -143,9 +178,15 @@ export function construirMapa(indice) {
     }
   }
 
+  const medidas = {
+    anchoTarjeta,
+    altoTarjeta,
+    separacionX,
+    margenFlecha: MARGEN_FLECHA_REM * pxPorRem,
+  }
   const conexiones = [...porPar.values()].map((conexion) => ({
     ...conexion,
-    d: trazado(posiciones.get(conexion.origenId), posiciones.get(conexion.destinoId)),
+    d: trazado(posiciones.get(conexion.origenId), posiciones.get(conexion.destinoId), medidas),
   }))
 
   const filasMaximas = Math.max(...anios.map((anio) => idsPorAnio.get(anio).length), 1)
@@ -153,17 +194,15 @@ export function construirMapa(indice) {
   return {
     columnas: anios.map((anio, columna) => ({
       anio,
-      x: MARGEN + columna * (ANCHO_TARJETA + SEPARACION_X),
+      x: margen + columna * (anchoTarjeta + separacionX),
     })),
     materias: nodos
       .filter((materia) => posiciones.has(materia.materia_id))
       .map((materia) => ({ materia, ...posiciones.get(materia.materia_id) })),
     conexiones,
-    ancho: MARGEN * 2 + anios.length * ANCHO_TARJETA + (anios.length - 1) * SEPARACION_X,
+    anchoTarjeta,
+    ancho: margen * 2 + anios.length * anchoTarjeta + (anios.length - 1) * separacionX,
     alto:
-      MARGEN * 2 +
-      ALTO_ENCABEZADO +
-      filasMaximas * ALTO_TARJETA +
-      (filasMaximas - 1) * SEPARACION_Y,
+      margen * 2 + altoEncabezado + filasMaximas * altoTarjeta + (filasMaximas - 1) * separacionY,
   }
 }

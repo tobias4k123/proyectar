@@ -77,7 +77,7 @@ def test_ruta_critica_se_achica_al_aprobar(client, crear_usuario, headers_de, ma
     )
     client.put(
         "/alumnos/me/historial",
-        json={"materia_id": materias_basicas["m1"], "estado": "aprobada", "nota": 7},
+        json={"materia_id": materias_basicas["m1"], "estado": "aprobada", "nota": 8},
         headers=headers,
     )
     r = client.get("/grafo/ruta-critica", headers=headers)

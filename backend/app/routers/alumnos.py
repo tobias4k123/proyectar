@@ -11,6 +11,14 @@ router = APIRouter(prefix="/alumnos", tags=["Alumnos"])
 # la materia todavía no tiene registro de historial). APROBADA admite
 # venir tanto de REGULAR (rindió el final) como de CURSANDO directo
 # (promoción -- en IFES todas las materias son promocionables).
+# Notas mínimas del régimen de IFES. Rindiendo el final se aprueba con 4;
+# para promocionar sin rendirlo hace falta 8. Una nota más baja no es una
+# aprobación, así que no se puede cargar como tal: si desaprobó el final la
+# materia sigue regular, y si no le alcanzó para promocionar le queda
+# rendirlo.
+NOTA_MINIMA_FINAL = 4
+NOTA_MINIMA_PROMOCION = 8
+
 _ORIGENES_VALIDOS = {
     models.EstadoHistorial.CURSANDO: {None, models.EstadoHistorial.LIBRE, models.EstadoHistorial.CURSANDO},
     models.EstadoHistorial.REGULAR: {models.EstadoHistorial.CURSANDO},
@@ -65,6 +73,21 @@ def actualizar_historial(
     elif nuevo_estado == models.EstadoHistorial.APROBADA:
         if datos.nota is None:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Hace falta indicar la nota para aprobar")
+
+        # El mínimo depende de por dónde se llega a la aprobación: desde
+        # "cursando" es una promoción, desde "regular" es haber rendido el
+        # final.
+        promociona = estado_actual == models.EstadoHistorial.CURSANDO
+        nota_minima = NOTA_MINIMA_PROMOCION if promociona else NOTA_MINIMA_FINAL
+        if datos.nota < nota_minima:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                f"Para promocionar hace falta un {nota_minima} o más; con menos nota te queda "
+                "rendir el final"
+                if promociona
+                else f"Para aprobar el final hace falta un {nota_minima} o más",
+            )
+
         # Aplica igual si viene de "regular" (rindió el final) o de
         # "cursando" (promoción directa): en los dos casos hace falta
         # cumplir las correlatividades tipo FINAL.

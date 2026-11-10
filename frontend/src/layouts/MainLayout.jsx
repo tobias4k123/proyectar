@@ -1,6 +1,13 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import { queryClient } from '../lib/queryClient'
+
+// El mapa de Mi Carrera aprovecha todo el ancho que haya: limitarlo como al
+// resto de las pantallas deja cientos de píxeles en blanco a los costados y
+// obliga a dibujar las materias más chicas de lo necesario. El resto sigue
+// con el ancho máximo de siempre, porque un texto o una tabla estirados a
+// lo ancho de un monitor grande se leen peor.
+const RUTAS_ANCHO_COMPLETO = ['/mi-carrera']
 
 const navItems = [
   { to: '/', label: 'Dashboard', end: true },
@@ -15,6 +22,8 @@ function MainLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const logout = useAuthStore((state) => state.logout)
   const navigate = useNavigate()
+  const location = useLocation()
+  const anchoCompleto = RUTAS_ANCHO_COMPLETO.includes(location.pathname)
 
   // Los admins ven además el link a /admin -- el backend ya exige el rol
   // en cada endpoint, esto es sólo para no mostrarle el link a un alumno.
@@ -32,7 +41,7 @@ function MainLayout() {
   return (
     <div className="flex min-h-svh flex-col bg-slate-50 text-slate-900">
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <span className="text-lg font-semibold tracking-tight">ProyectAR</span>
 
           {isAuthenticated && (
@@ -77,7 +86,9 @@ function MainLayout() {
           )}
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
+      <main
+        className={`mx-auto w-full flex-1 px-6 py-8 ${anchoCompleto ? '' : 'max-w-7xl'}`}
+      >
         <Outlet />
       </main>
     </div>

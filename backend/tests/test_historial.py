@@ -83,7 +83,7 @@ def test_aprobar_sin_cumplir_correlativas_de_final(client, crear_usuario, header
 
     r = client.put(
         "/alumnos/me/historial",
-        json={"materia_id": materias_basicas["m2"], "estado": "aprobada", "nota": 7},
+        json={"materia_id": materias_basicas["m2"], "estado": "aprobada", "nota": 8},
         headers=headers,
     )
     assert r.status_code == 400
@@ -203,3 +203,70 @@ def test_dashboard_con_una_materia_aprobada(client, crear_usuario, headers_de, m
     assert cuerpo["aprobadas"] == 1
     assert cuerpo["porcentaje_avance"] == round(1 / 3 * 100, 1)
     assert cuerpo["promedio"] == 8.0
+
+
+def _cursar(client, headers, materia_id):
+    return client.put(
+        "/alumnos/me/historial",
+        json={"materia_id": materia_id, "estado": "cursando"},
+        headers=headers,
+    )
+
+
+def _aprobar(client, headers, materia_id, nota):
+    return client.put(
+        "/alumnos/me/historial",
+        json={"materia_id": materia_id, "estado": "aprobada", "nota": nota},
+        headers=headers,
+    )
+
+
+def test_promocionar_con_menos_de_ocho_falla(client, crear_usuario, headers_de, materias_basicas):
+    """Desde "cursando" aprobar es promocionar, y en IFES eso pide un 8."""
+    crear_usuario("alumno@test.com")
+    headers = headers_de("alumno@test.com")
+    _cursar(client, headers, materias_basicas["m1"])
+    r = _aprobar(client, headers, materias_basicas["m1"], 7)
+    assert r.status_code == 400
+    assert "promocionar" in r.json()["detail"]
+
+
+def test_promocionar_con_ocho_funciona(client, crear_usuario, headers_de, materias_basicas):
+    crear_usuario("alumno@test.com")
+    headers = headers_de("alumno@test.com")
+    _cursar(client, headers, materias_basicas["m1"])
+    r = _aprobar(client, headers, materias_basicas["m1"], 8)
+    assert r.status_code == 200, r.text
+    assert r.json()["nota"] == 8
+
+
+def test_aprobar_el_final_con_menos_de_cuatro_falla(
+    client, crear_usuario, headers_de, materias_basicas
+):
+    """Desde "regular" aprobar es haber rendido el final: con menos de 4 está desaprobado."""
+    crear_usuario("alumno@test.com")
+    headers = headers_de("alumno@test.com")
+    _cursar(client, headers, materias_basicas["m1"])
+    client.put(
+        "/alumnos/me/historial",
+        json={"materia_id": materias_basicas["m1"], "estado": "regular"},
+        headers=headers,
+    )
+    r = _aprobar(client, headers, materias_basicas["m1"], 3)
+    assert r.status_code == 400
+    assert "final" in r.json()["detail"]
+
+
+def test_aprobar_el_final_con_cuatro_funciona(client, crear_usuario, headers_de, materias_basicas):
+    """Un 4 en el final alcanza, aunque no alcanzaría para promocionar."""
+    crear_usuario("alumno@test.com")
+    headers = headers_de("alumno@test.com")
+    _cursar(client, headers, materias_basicas["m1"])
+    client.put(
+        "/alumnos/me/historial",
+        json={"materia_id": materias_basicas["m1"], "estado": "regular"},
+        headers=headers,
+    )
+    r = _aprobar(client, headers, materias_basicas["m1"], 4)
+    assert r.status_code == 200, r.text
+    assert r.json()["nota"] == 4

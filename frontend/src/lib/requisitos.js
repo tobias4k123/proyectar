@@ -67,6 +67,24 @@ export function requisitosDe(indice, materiaId, tipo) {
     .sort((a, b) => a.materia.nombre.localeCompare(b.materia.nombre))
 }
 
+// Todo lo que depende de esta materia, directa o indirectamente. Se usa al
+// desmarcar una materia en el simulador: si dejo de dar por aprobada
+// Programación I, tampoco tiene sentido seguir dando por aprobadas las que
+// se habían habilitado gracias a ella.
+export function descendientesDe(indice, materiaId) {
+  const alcanzadas = new Set()
+  const pendientes = [materiaId]
+  while (pendientes.length > 0) {
+    const actual = pendientes.pop()
+    for (const arista of indice.salientes.get(actual) ?? []) {
+      if (alcanzadas.has(arista.destino_id)) continue
+      alcanzadas.add(arista.destino_id)
+      pendientes.push(arista.destino_id)
+    }
+  }
+  return alcanzadas
+}
+
 // Materias que esta habilita al aprobarse. Se dejan afuera las que exigen
 // casi todo el plan: aparecerían en la lista de todas las materias y no
 // aportarían nada.
