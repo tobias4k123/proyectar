@@ -26,13 +26,13 @@ function Admin() {
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Administración</h1>
-        <p className="text-slate-600">
+        <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Administración</h1>
+        <p className="text-slate-600 dark:text-slate-400">
           Gestioná las materias y correlatividades del plan de estudios.
         </p>
       </div>
 
-      <div className="flex gap-1 border-b border-slate-200">
+      <div className="flex gap-1 border-b border-slate-200 dark:border-slate-800">
         {TABS.map((item) => (
           <button
             key={item.id}
@@ -40,8 +40,8 @@ function Admin() {
             onClick={() => setTab(item.id)}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               tab === item.id
-                ? 'border-b-2 border-slate-900 text-slate-900'
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'border-b-2 border-slate-900 text-slate-900 dark:text-slate-100'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
             }`}
           >
             {item.label}

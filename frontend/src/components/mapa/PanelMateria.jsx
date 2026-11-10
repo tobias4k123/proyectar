@@ -32,11 +32,11 @@ function PanelMateria({ indice, materia, enRutaCritica, onCerrar }) {
   const faltanParaCursar = paraCursar.filter((requisito) => !requisito.cumple)
 
   return (
-    <aside className="rounded-lg border border-slate-200 bg-white p-4">
+    <aside className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="text-base font-semibold leading-tight text-slate-900">{materia.nombre}</h2>
-          <p className="text-xs text-slate-400">
+          <h2 className="text-base font-semibold leading-tight text-slate-900 dark:text-slate-100">{materia.nombre}</h2>
+          <p className="text-xs text-slate-400 dark:text-slate-500">
             {materia.codigo} · {materia.anio_carrera}° año
           </p>
         </div>
@@ -44,7 +44,7 @@ function PanelMateria({ indice, materia, enRutaCritica, onCerrar }) {
           type="button"
           onClick={onCerrar}
           aria-label="Cerrar"
-          className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          className="rounded-md p-1 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300"
         >
           <X size={16} aria-hidden="true" />
         </button>
@@ -59,20 +59,20 @@ function PanelMateria({ indice, materia, enRutaCritica, onCerrar }) {
           {materia.estado === 'aprobada' && materia.nota != null && ` · nota ${materia.nota}`}
         </span>
         {enRutaCritica && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ea6c1f]/10 px-2 py-1 text-xs font-medium text-[#ea6c1f]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ea6c1f]/10 px-2 py-1 text-xs font-medium text-[#ea6c1f] dark:text-[#fb923c]">
             <Route size={13} aria-hidden="true" />
             En la ruta crítica
           </span>
         )}
         {materia.simulado && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#7c5fe0]/10 px-2 py-1 text-xs font-medium text-[#7c5fe0]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#7c5fe0]/10 px-2 py-1 text-xs font-medium text-[#7c5fe0] dark:text-[#a78bfa]">
             Simulada
           </span>
         )}
       </div>
 
       {materia.estado === 'bloqueada' && faltanParaCursar.length > 0 && (
-        <p className="mt-3 rounded-md bg-slate-50 p-2.5 text-xs leading-relaxed text-slate-600">
+        <p className="mt-3 rounded-md bg-slate-50 dark:bg-slate-800 p-2.5 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
           Todavía no la podés cursar. Te falta {faltanParaCursar.map(textoFaltante).join(', y ')}.
         </p>
       )}
@@ -88,16 +88,16 @@ function PanelMateria({ indice, materia, enRutaCritica, onCerrar }) {
 
       {habilita.length > 0 && (
         <div className="mt-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
             Al aprobarla habilitás
           </h3>
           <ul className="mt-1.5 space-y-1">
             {habilita.map((destino) => (
               <li
                 key={destino.materia_id}
-                className="flex items-center gap-1.5 text-xs text-slate-600"
+                className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400"
               >
-                <ArrowRight size={12} className="shrink-0 text-slate-400" aria-hidden="true" />
+                <ArrowRight size={12} className="shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                 {destino.nombre}
               </li>
             ))}
@@ -106,7 +106,7 @@ function PanelMateria({ indice, materia, enRutaCritica, onCerrar }) {
       )}
 
       {materia.estado !== 'bloqueada' && (
-        <div className="mt-4 border-t border-slate-100 pt-3">
+        <div className="mt-4 border-t border-slate-100 dark:border-slate-800 pt-3">
           <AccionesMateria materia={materia} />
         </div>
       )}
@@ -119,7 +119,7 @@ function ListaRequisitos({ titulo, requisitos }) {
 
   return (
     <div className="mt-4">
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">{titulo}</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">{titulo}</h3>
       <ul className="mt-1.5 space-y-1">
         {requisitos.map((requisito) => (
           <li
@@ -127,13 +127,13 @@ function ListaRequisitos({ titulo, requisitos }) {
             className="flex items-start gap-1.5 text-xs"
           >
             {requisito.cumple ? (
-              <Check size={13} className="mt-0.5 shrink-0 text-[#0ca30c]" aria-hidden="true" />
+              <Check size={13} className="mt-0.5 shrink-0 text-[#0ca30c] dark:text-[#4ade80]" aria-hidden="true" />
             ) : (
-              <Lock size={13} className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true" />
+              <Lock size={13} className="mt-0.5 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
             )}
-            <span className={requisito.cumple ? 'text-slate-500' : 'text-slate-700'}>
+            <span className={requisito.cumple ? 'text-slate-500 dark:text-slate-400' : 'text-slate-700 dark:text-slate-300'}>
               {requisito.materia.nombre}{' '}
-              <span className="text-slate-400">({textoRequisito(requisito.requiere)})</span>
+              <span className="text-slate-400 dark:text-slate-500">({textoRequisito(requisito.requiere)})</span>
             </span>
           </li>
         ))}
@@ -153,15 +153,15 @@ function RequisitoTodoElPlan({ requisitos }) {
 
   return (
     <div className="mt-4">
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
         Para aprobarla necesitás
       </h3>
-      <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
+      <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
         Las {requisitos.length} materias del plan aprobadas.{' '}
         {faltantes.length === 0 ? (
-          <span className="font-medium text-[#0ca30c]">Ya las tenés todas.</span>
+          <span className="font-medium text-[#0ca30c] dark:text-[#4ade80]">Ya las tenés todas.</span>
         ) : (
-          <span className="font-medium text-slate-900">Te faltan {faltantes.length}.</span>
+          <span className="font-medium text-slate-900 dark:text-slate-100">Te faltan {faltantes.length}.</span>
         )}
       </p>
       {faltantes.length > 0 && (
@@ -169,14 +169,14 @@ function RequisitoTodoElPlan({ requisitos }) {
           {listadas.map((requisito) => (
             <li
               key={requisito.materia.materia_id}
-              className="flex items-start gap-1.5 text-xs text-slate-700"
+              className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300"
             >
-              <Lock size={13} className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true" />
+              <Lock size={13} className="mt-0.5 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
               {requisito.materia.nombre}
             </li>
           ))}
           {restantes > 0 && (
-            <li className="pl-[18px] text-xs text-slate-400">y {restantes} más</li>
+            <li className="pl-[18px] text-xs text-slate-400 dark:text-slate-500">y {restantes} más</li>
           )}
         </ul>
       )}

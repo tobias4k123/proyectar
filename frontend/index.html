@@ -6,6 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google" content="notranslate" />
     <title>ProyectAR</title>
+    <script>
+      // Se aplica el modo oscuro antes de que cargue la aplicación: si se
+      // esperara a React, la pantalla aparecería un instante en claro.
+      // Misma lógica que src/lib/tema.js, repetida acá porque este script
+      // corre antes que cualquier módulo.
+      try {
+        var tema =
+          localStorage.getItem('proyectar-tema') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro')
+        if (tema === 'oscuro') document.documentElement.classList.add('dark')
+      } catch (e) {
+        /* almacenamiento bloqueado: arranca en claro */
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

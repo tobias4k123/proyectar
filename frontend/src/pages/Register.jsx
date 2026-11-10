@@ -33,22 +33,22 @@ function Register() {
 
   return (
     <section className="mx-auto max-w-sm space-y-6">
-      <h1 className="text-2xl font-semibold text-slate-900">Crear cuenta</h1>
+      <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Crear cuenta</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1">
-          <label htmlFor="nombre" className="text-sm font-medium text-slate-700">
+          <label htmlFor="nombre" className="text-sm font-medium text-slate-700 dark:text-slate-300">
             Nombre
           </label>
           <input
             id="nombre"
             value={nombre}
             onChange={(event) => setNombre(event.target.value)}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+            className="w-full rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
             required
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="email" className="text-sm font-medium text-slate-700">
+          <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
             Email
           </label>
           <input
@@ -56,12 +56,12 @@ function Register() {
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+            className="w-full rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
             required
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="password" className="text-sm font-medium text-slate-700">
+          <label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
             Contraseña
           </label>
           <input
@@ -69,26 +69,26 @@ function Register() {
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+            className="w-full rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
             required
           />
         </div>
 
         {mutation.isError && (
-          <p className="text-sm text-[#d03b3b]">{mutation.error.message}</p>
+          <p className="text-sm text-[#d03b3b] dark:text-[#f87171]">{mutation.error.message}</p>
         )}
 
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="w-full rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+          className="w-full rounded-md bg-slate-900 dark:bg-slate-100 px-3 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-60"
         >
           {mutation.isPending ? 'Creando cuenta…' : 'Crear cuenta'}
         </button>
       </form>
-      <p className="text-center text-sm text-slate-600">
+      <p className="text-center text-sm text-slate-600 dark:text-slate-400">
         ¿Ya tenés cuenta?{' '}
-        <Link to="/login" className="font-medium text-slate-900 underline">
+        <Link to="/login" className="font-medium text-slate-900 dark:text-slate-100 underline">
           Ingresá
         </Link>
       </p>

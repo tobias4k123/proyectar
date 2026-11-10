@@ -102,21 +102,21 @@ function MiCarrera() {
   return (
     <section className="space-y-4">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Mi Carrera</h1>
-        <p className="text-slate-600">
+        <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Mi Carrera</h1>
+        <p className="text-slate-600 dark:text-slate-400">
           Tu plan de estudios completo. Tocá una materia para ver qué necesita, qué habilita y
           cargar cómo venís con ella.
         </p>
       </div>
 
       {isLoading && (
-        <div className="flex h-96 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400">
+        <div className="flex h-96 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500">
           Cargando tu carrera…
         </div>
       )}
 
       {isError && (
-        <div className="rounded-lg border border-[#d03b3b]/30 bg-[#d03b3b]/5 p-4 text-sm text-[#d03b3b]">
+        <div className="rounded-lg border border-[#d03b3b]/30 bg-[#d03b3b]/5 p-4 text-sm text-[#d03b3b] dark:text-[#f87171]">
           No se pudo cargar tu carrera: {error.message}
         </div>
       )}
@@ -124,7 +124,7 @@ function MiCarrera() {
       {indice && (
         <>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex rounded-md border border-slate-300 p-0.5">
+            <div className="flex rounded-md border border-slate-300 dark:border-slate-700 p-0.5">
               <BotonVista
                 activo={vista === 'mapa'}
                 onClick={() => cambiarVista('mapa')}
@@ -208,7 +208,7 @@ function MiCarrera() {
                     onCerrar={() => setSeleccionId(null)}
                   />
                 ) : (
-                  <div className="rounded-lg border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-400">
+                  <div className="rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 text-sm text-slate-400 dark:text-slate-500">
                     Tocá una materia para ver sus correlatividades y cargar su estado.
                   </div>
                 ))}
@@ -227,7 +227,7 @@ function BotonVista({ activo, onClick, icono: Icono, etiqueta }) {
       onClick={onClick}
       aria-pressed={activo}
       className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1.5 text-sm font-medium transition-colors ${
-        activo ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'
+        activo ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
       }`}
     >
       <Icono size={14} aria-hidden="true" />
@@ -244,7 +244,7 @@ function BotonCapa({ activo, onClick, icono: Icono, color, etiqueta }) {
       aria-pressed={activo}
       style={activo ? { backgroundColor: color, borderColor: color } : undefined}
       className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
-        activo ? 'text-white' : 'border-slate-300 text-slate-600 hover:bg-slate-100'
+        activo ? 'text-white' : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
       }`}
     >
       <Icono size={14} aria-hidden="true" />
@@ -256,20 +256,20 @@ function BotonCapa({ activo, onClick, icono: Icono, color, etiqueta }) {
 function PanelSimulacion({ cantidad, onLimpiar, onSalir }) {
   return (
     <div className="rounded-lg border border-[#7c5fe0]/40 bg-[#7c5fe0]/5 p-4">
-      <h2 className="flex items-center gap-1.5 text-sm font-semibold text-[#7c5fe0]">
+      <h2 className="flex items-center gap-1.5 text-sm font-semibold text-[#7c5fe0] dark:text-[#a78bfa]">
         <FlaskConical size={15} aria-hidden="true" />
         Estás simulando
       </h2>
-      <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
+      <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
         Tocá materias en el mapa para darlas por aprobadas y ver cómo cambiaría todo.{' '}
-        <strong className="font-medium text-slate-900">Nada de esto se guarda</strong> en tu
+        <strong className="font-medium text-slate-900 dark:text-slate-100">Nada de esto se guarda</strong> en tu
         historial.
       </p>
-      <p className="mt-1.5 text-xs leading-relaxed text-slate-500">
+      <p className="mt-1.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
         Solo podés marcar las que ya podrías cursar. Las bloqueadas se habilitan recién cuando
         marcás su correlativa, y las flechas violetas muestran qué desbloqueó cada una.
       </p>
-      <p className="mt-2 text-xs font-medium text-slate-900">
+      <p className="mt-2 text-xs font-medium text-slate-900 dark:text-slate-100">
         {cantidad === 0
           ? 'Todavía no marcaste ninguna.'
           : `${cantidad} ${cantidad === 1 ? 'materia simulada' : 'materias simuladas'}.`}
@@ -279,7 +279,7 @@ function PanelSimulacion({ cantidad, onLimpiar, onSalir }) {
           <button
             type="button"
             onClick={onLimpiar}
-            className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
           >
             <RotateCcw size={12} aria-hidden="true" />
             Empezar de nuevo
@@ -288,7 +288,7 @@ function PanelSimulacion({ cantidad, onLimpiar, onSalir }) {
         <button
           type="button"
           onClick={onSalir}
-          className="rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-slate-800"
+          className="rounded-md bg-slate-900 dark:bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white"
         >
           Salir de la simulación
         </button>
@@ -300,17 +300,17 @@ function PanelSimulacion({ cantidad, onLimpiar, onSalir }) {
 function PanelRutaCritica({ materias, simulando }) {
   return (
     <div className="rounded-lg border border-[#ea6c1f]/40 bg-[#ea6c1f]/5 p-4">
-      <h2 className="flex items-center gap-1.5 text-sm font-semibold text-[#ea6c1f]">
+      <h2 className="flex items-center gap-1.5 text-sm font-semibold text-[#ea6c1f] dark:text-[#fb923c]">
         <Route size={15} aria-hidden="true" />
         Ruta crítica
       </h2>
       {materias.length === 0 ? (
-        <p className="mt-1.5 text-xs text-slate-600">
+        <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400">
           No te queda ninguna cadena de materias pendientes. ¡Terminaste el plan!
         </p>
       ) : (
         <>
-          <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
+          <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
             La cadena más larga que te queda por delante: {materias.length}{' '}
             {materias.length === 1 ? 'materia' : 'materias'}, una atrás de la otra.
             {simulando && ' Recalculada con tu simulación.'}
@@ -319,7 +319,7 @@ function PanelRutaCritica({ materias, simulando }) {
             {materias.map((materia, posicion) => (
               <li
                 key={materia.materia_id}
-                className="flex items-start gap-2 text-xs text-slate-700"
+                className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300"
               >
                 <span className="mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#ea6c1f] text-[9px] font-semibold text-white">
                   {posicion + 1}
@@ -339,14 +339,14 @@ function PanelRutaCritica({ materias, simulando }) {
 // hay nada que distinguir por tipo de trazo.
 function Leyenda({ mostrarRutaCritica }) {
   return (
-    <div className="flex flex-wrap items-center gap-4 rounded-md border border-slate-200 bg-white px-4 py-2 text-xs text-slate-600">
+    <div className="flex flex-wrap items-center gap-4 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2 text-xs text-slate-600 dark:text-slate-400">
       {Object.values(ESTADO_CONFIG).map(({ label, icon: Icon, text }) => (
         <span key={label} className="flex items-center gap-1.5">
           <Icon size={14} className={text} aria-hidden="true" />
           {label}
         </span>
       ))}
-      <span className="flex items-center gap-1.5 border-l border-slate-200 pl-4 text-slate-500">
+      <span className="flex items-center gap-1.5 border-l border-slate-200 dark:border-slate-800 pl-4 text-slate-500 dark:text-slate-400">
         <svg width="24" height="8" aria-hidden="true">
           <line x1="0" y1="4" x2="16" y2="4" stroke="#cbd5e1" strokeWidth="2" />
           <path d="M 16 0 L 23 4 L 16 8 z" fill="#cbd5e1" />
@@ -354,7 +354,7 @@ function Leyenda({ mostrarRutaCritica }) {
         La flecha va de la correlativa a la materia que la necesita
       </span>
       {mostrarRutaCritica && (
-        <span className="flex items-center gap-1.5 border-l border-slate-200 pl-4 text-[#ea6c1f]">
+        <span className="flex items-center gap-1.5 border-l border-slate-200 dark:border-slate-800 pl-4 text-[#ea6c1f] dark:text-[#fb923c]">
           <Route size={14} aria-hidden="true" />
           En la ruta crítica
         </span>

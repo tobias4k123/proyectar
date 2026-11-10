@@ -4,6 +4,25 @@
   --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
 }
 
+/* El modo oscuro se controla con una clase en <html> y no con la
+   preferencia del sistema a secas, para que el alumno pueda elegirlo
+   aunque su sistema esté al revés. El arranque sí respeta la preferencia
+   del sistema la primera vez (ver el script de index.html). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Los colores del mapa se definen acá porque el <svg> los recibe como
+   atributos y no como clases de Tailwind: así cambian solos al pasar a
+   modo oscuro, sin tener que avisarle al componente. */
+:root {
+  --linea-mapa: #cbd5e1;
+  --linea-mapa-activa: #0f172a;
+}
+
+.dark {
+  --linea-mapa: #475569;
+  --linea-mapa-activa: #e2e8f0;
+}
+
 /* Toda la interfaz se mide en rem (Tailwind usa rem tanto para los textos
    como para los espaciados), así que moviendo el tamaño de letra de la
    raíz escala junta: el logo, el menú, los botones, las tablas, el panel

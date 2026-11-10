@@ -21,8 +21,8 @@ function ListaMaterias({ indice, rutaCriticaIds = [], onSeleccionar }) {
   return (
     <div className="space-y-4">
       {anios.map((anio) => (
-        <div key={anio} className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-          <h2 className="border-b border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
+        <div key={anio} className="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <h2 className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
             {anio}° año
           </h2>
           <table className="w-full text-left text-sm">
@@ -31,16 +31,16 @@ function ListaMaterias({ indice, rutaCriticaIds = [], onSeleccionar }) {
                 const config = configDeEstado(materia.estado)
                 const Icon = config.icon
                 return (
-                  <tr key={materia.materia_id} className="border-b border-slate-100 last:border-0">
+                  <tr key={materia.materia_id} className="border-b border-slate-100 dark:border-slate-800 last:border-0">
                     <td className="px-4 py-3 align-top">
                       <button
                         type="button"
                         onClick={() => onSeleccionar(materia.materia_id)}
-                        className="text-left font-medium text-slate-900 hover:underline"
+                        className="text-left font-medium text-slate-900 dark:text-slate-100 hover:underline"
                       >
                         {materia.nombre}
                       </button>
-                      <p className="text-xs text-slate-400">{materia.codigo}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">{materia.codigo}</p>
                     </td>
 
                     <td className="px-4 py-3 align-top">
@@ -51,10 +51,10 @@ function ListaMaterias({ indice, rutaCriticaIds = [], onSeleccionar }) {
                         {config.label}
                       </span>
                       {materia.estado === 'aprobada' && materia.nota != null && (
-                        <p className="mt-1 text-xs text-slate-500">Nota: {materia.nota}</p>
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Nota: {materia.nota}</p>
                       )}
                       {enRutaCritica.has(materia.materia_id) && (
-                        <p className="mt-1 flex items-center gap-1 text-xs text-[#ea6c1f]">
+                        <p className="mt-1 flex items-center gap-1 text-xs text-[#ea6c1f] dark:text-[#fb923c]">
                           <Route size={11} aria-hidden="true" />
                           Ruta crítica
                         </p>
@@ -63,7 +63,7 @@ function ListaMaterias({ indice, rutaCriticaIds = [], onSeleccionar }) {
 
                     <td className="px-4 py-3 align-top">
                       {materia.estado === 'bloqueada' ? (
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-slate-400 dark:text-slate-500">
                           Todavía no cumplís las correlatividades
                         </span>
                       ) : (
