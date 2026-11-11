@@ -5,6 +5,17 @@ import * as api from '../../lib/apiClient'
 import { useAuthStore } from '../../store/useAuthStore'
 import ModalMateria from './ModalMateria'
 
+// Los botones de ícono se tocan con el dedo en celular: 40px de lado, que
+// es el mínimo cómodo, y 32px desde `sm` para arriba, donde hay mouse.
+const BOTON_ICONO =
+  'inline-flex items-center justify-center min-h-10 min-w-10 sm:min-h-8 sm:min-w-8 rounded-md border border-slate-300 dark:border-slate-700'
+
+// La lista no es una tabla: en celular cada materia se apila en una sola
+// columna y recién desde `sm` pasa a las cuatro (código · nombre · año ·
+// acciones). Con una tabla, la columna de acciones quedaba cortada contra
+// el borde y los botones de borrar eran inalcanzables en pantallas chicas.
+const COLUMNAS = 'sm:grid-cols-[7rem_minmax(0,1fr)_4rem_auto]'
+
 function TabMaterias({ materiasQuery }) {
   const token = useAuthStore((state) => state.token)
   const queryClient = useQueryClient()
@@ -72,53 +83,51 @@ function TabMaterias({ materiasQuery }) {
 
       {materiasQuery.data && (
         <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-400">
-                <th className="px-4 py-2">Código</th>
-                <th className="px-4 py-2">Nombre</th>
-                <th className="px-4 py-2">Año</th>
-                <th className="px-4 py-2 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {materias.map((materia) => (
-                <tr key={materia.id} className="border-b border-slate-100 dark:border-slate-800 last:border-0">
-                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{materia.codigo}</td>
-                  <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{materia.nombre}</td>
-                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{materia.anio_carrera}°</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setModal(materia)}
-                        className="rounded-md border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                        title="Editar"
-                      >
-                        <Pencil size={14} aria-hidden="true" />
-                      </button>
-                      <button
-                        type="button"
-                        disabled={eliminar.isPending}
-                        onClick={() => borrar(materia)}
-                        className="rounded-md border border-slate-300 dark:border-slate-700 p-1.5 text-[#d03b3b] dark:text-[#f87171] hover:bg-[#d03b3b]/5 disabled:cursor-not-allowed disabled:opacity-60"
-                        title="Borrar"
-                      >
-                        <Trash2 size={14} aria-hidden="true" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {materias.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-4 py-6 text-center text-slate-400 dark:text-slate-500">
-                    Todavía no hay materias cargadas.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <div
+            className={`hidden sm:grid gap-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 ${COLUMNAS}`}
+          >
+            <span>Código</span>
+            <span>Nombre</span>
+            <span>Año</span>
+            <span className="text-right">Acciones</span>
+          </div>
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {materias.map((materia) => (
+              <li
+                key={materia.id}
+                data-admin-materia={materia.id}
+                className={`grid grid-cols-1 gap-2 px-4 py-3 text-sm sm:items-center sm:gap-4 ${COLUMNAS}`}
+              >
+                <span className="text-slate-500 dark:text-slate-400">{materia.codigo}</span>
+                <span className="font-medium text-slate-900 dark:text-slate-100">{materia.nombre}</span>
+                <span className="text-slate-500 dark:text-slate-400">{materia.anio_carrera}° año</span>
+                <div className="flex gap-2 sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setModal(materia)}
+                    className={`${BOTON_ICONO} text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800`}
+                    title="Editar"
+                  >
+                    <Pencil size={14} aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={eliminar.isPending}
+                    onClick={() => borrar(materia)}
+                    className={`${BOTON_ICONO} text-[#d03b3b] dark:text-[#f87171] hover:bg-[#d03b3b]/5 disabled:cursor-not-allowed disabled:opacity-60`}
+                    title="Borrar"
+                  >
+                    <Trash2 size={14} aria-hidden="true" />
+                  </button>
+                </div>
+              </li>
+            ))}
+            {materias.length === 0 && (
+              <li className="px-4 py-6 text-center text-sm text-slate-400 dark:text-slate-500">
+                Todavía no hay materias cargadas.
+              </li>
+            )}
+          </ul>
         </div>
       )}
 

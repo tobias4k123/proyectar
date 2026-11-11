@@ -72,7 +72,10 @@ function Login() {
       </form>
       <p className="text-center text-sm text-slate-600 dark:text-slate-400">
         ¿No tenés cuenta?{' '}
-        <Link to="/registro" className="font-medium text-slate-900 dark:text-slate-100 underline">
+        <Link
+          to="/registro"
+          className="inline-flex min-h-10 items-center font-medium text-slate-900 dark:text-slate-100 underline sm:min-h-0"
+        >
           Registrate
         </Link>
       </p>

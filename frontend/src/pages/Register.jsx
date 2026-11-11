@@ -88,7 +88,10 @@ function Register() {
       </form>
       <p className="text-center text-sm text-slate-600 dark:text-slate-400">
         ¿Ya tenés cuenta?{' '}
-        <Link to="/login" className="font-medium text-slate-900 dark:text-slate-100 underline">
+        <Link
+          to="/login"
+          className="inline-flex min-h-10 items-center font-medium text-slate-900 dark:text-slate-100 underline sm:min-h-0"
+        >
           Ingresá
         </Link>
       </p>

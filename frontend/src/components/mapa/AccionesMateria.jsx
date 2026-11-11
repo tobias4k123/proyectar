@@ -3,12 +3,17 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import * as api from '../../lib/apiClient'
 import { useAuthStore } from '../../store/useAuthStore'
 
+// En celular se toca con el dedo, así que ningún botón baja de 40px de
+// alto; en pantallas con mouse vuelven a ser compactos (`sm:min-h-0`), que
+// es como ya estaban.
+const TACTIL = 'inline-flex items-center justify-center min-h-10 sm:min-h-0'
+
 const estilosBotonSecundario =
-  'rounded-md border border-slate-300 dark:border-slate-700 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60'
+  `${TACTIL} rounded-md border border-slate-300 dark:border-slate-700 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60`
 const estilosBotonAprobar =
-  'rounded-md bg-[#0ca30c] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#0ca30c]/90 disabled:cursor-not-allowed disabled:opacity-60'
+  `${TACTIL} rounded-md bg-[#0ca30c] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-[#0ca30c]/90 disabled:cursor-not-allowed disabled:opacity-60`
 const estilosBotonCorregir =
-  'rounded-md px-2.5 py-1.5 text-xs font-medium text-[#d03b3b] dark:text-[#f87171] hover:bg-[#d03b3b]/5 disabled:cursor-not-allowed disabled:opacity-60'
+  `${TACTIL} rounded-md px-2.5 py-1.5 text-xs font-medium text-[#d03b3b] dark:text-[#f87171] hover:bg-[#d03b3b]/5 disabled:cursor-not-allowed disabled:opacity-60`
 
 // Notas mínimas del régimen de IFES, las mismas que valida el backend en
 // `routers/alumnos.py`: rindiendo el final se aprueba con 4, y promocionar
@@ -110,14 +115,14 @@ function AccionesMateria({ materia }) {
             max={10}
             value={nota}
             onChange={(event) => setNota(event.target.value)}
-            className="w-16 rounded-md border border-slate-300 dark:border-slate-700 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none"
+            className="w-16 min-h-10 sm:min-h-0 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-sm text-slate-900 dark:text-slate-100 focus:border-slate-500 focus:outline-none"
             autoFocus
           />
           <button
             type="button"
             disabled={procesando}
             onClick={confirmarAprobacion}
-            className="rounded-md bg-slate-900 dark:bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-white dark:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+            className={`${TACTIL} rounded-md bg-slate-900 dark:bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-white dark:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60`}
           >
             Confirmar
           </button>

@@ -8,6 +8,13 @@ import ModalCorrelatividad from './ModalCorrelatividad'
 const TIPO_LABEL = { cursar: 'Para cursar', final: 'Para el final' }
 const REQUIERE_LABEL = { cursada: 'cursada', aprobada: 'aprobada' }
 
+// Mismo criterio que en la pestaña de materias: botones de 40px en celular,
+// 32px desde `sm`, y la lista apilada en pantallas chicas en vez de una
+// tabla cuya última columna quedaba fuera de pantalla.
+const BOTON_ICONO =
+  'inline-flex items-center justify-center min-h-10 min-w-10 sm:min-h-8 sm:min-w-8 rounded-md border border-slate-300 dark:border-slate-700'
+const COLUMNAS = 'sm:grid-cols-[minmax(0,1fr)_12rem_minmax(0,1fr)_auto]'
+
 function TabCorrelatividades({ materiasQuery }) {
   const token = useAuthStore((state) => state.token)
   const queryClient = useQueryClient()
@@ -88,47 +95,49 @@ function TabCorrelatividades({ materiasQuery }) {
 
       {correlatividadesQuery.data && (
         <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-400">
-                <th className="px-4 py-2">Materia</th>
-                <th className="px-4 py-2">Necesita</th>
-                <th className="px-4 py-2">Correlativa</th>
-                <th className="px-4 py-2 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {correlatividades.map((correlatividad) => (
-                <tr key={correlatividad.id} className="border-b border-slate-100 dark:border-slate-800 last:border-0">
-                  <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
-                    {nombreDe(correlatividad.materia_id)}
-                  </td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
-                    {TIPO_LABEL[correlatividad.tipo]}: {REQUIERE_LABEL[correlatividad.requiere]}
-                  </td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{nombreDe(correlatividad.correlativa_id)}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      type="button"
-                      disabled={eliminar.isPending}
-                      onClick={() => borrar(correlatividad)}
-                      className="rounded-md border border-slate-300 dark:border-slate-700 p-1.5 text-[#d03b3b] dark:text-[#f87171] hover:bg-[#d03b3b]/5 disabled:cursor-not-allowed disabled:opacity-60"
-                      title="Borrar"
-                    >
-                      <Trash2 size={14} aria-hidden="true" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {correlatividades.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-4 py-6 text-center text-slate-400 dark:text-slate-500">
-                    Todavía no hay correlatividades cargadas.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <div
+            className={`hidden sm:grid gap-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 ${COLUMNAS}`}
+          >
+            <span>Materia</span>
+            <span>Necesita</span>
+            <span>Correlativa</span>
+            <span className="text-right">Acciones</span>
+          </div>
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {correlatividades.map((correlatividad) => (
+              <li
+                key={correlatividad.id}
+                data-admin-correlatividad={correlatividad.id}
+                className={`grid grid-cols-1 gap-1 px-4 py-3 text-sm sm:items-center sm:gap-4 ${COLUMNAS}`}
+              >
+                <span className="font-medium text-slate-900 dark:text-slate-100">
+                  {nombreDe(correlatividad.materia_id)}
+                </span>
+                <span className="text-slate-600 dark:text-slate-400">
+                  {TIPO_LABEL[correlatividad.tipo]}: {REQUIERE_LABEL[correlatividad.requiere]}
+                </span>
+                <span className="text-slate-600 dark:text-slate-400">
+                  {nombreDe(correlatividad.correlativa_id)}
+                </span>
+                <div className="mt-1 flex sm:mt-0 sm:justify-end">
+                  <button
+                    type="button"
+                    disabled={eliminar.isPending}
+                    onClick={() => borrar(correlatividad)}
+                    className={`${BOTON_ICONO} text-[#d03b3b] dark:text-[#f87171] hover:bg-[#d03b3b]/5 disabled:cursor-not-allowed disabled:opacity-60`}
+                    title="Borrar"
+                  >
+                    <Trash2 size={14} aria-hidden="true" />
+                  </button>
+                </div>
+              </li>
+            ))}
+            {correlatividades.length === 0 && (
+              <li className="px-4 py-6 text-center text-sm text-slate-400 dark:text-slate-500">
+                Todavía no hay correlatividades cargadas.
+              </li>
+            )}
+          </ul>
         </div>
       )}
 
